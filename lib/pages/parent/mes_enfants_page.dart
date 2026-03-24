@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:edidact_app/widgets/menu_barre.dart';
-import 'package:edidact_app/pages/ajout_enfant.dart';
-import 'package:edidact_app/pages/edit_enfant.dart';
+import 'package:edidact_app/pages/parent/ajout_enfant.dart';
+import 'package:edidact_app/pages/parent/edit_enfant.dart';
+import 'package:edidact_app/pages/enfant/enfant_ex.dart'; // ← import ajouté
 
 const _kPurple    = Color(0xFF9C27B0);
 const _kCyan      = Color(0xFF00BCD4);
@@ -78,7 +79,7 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
 
               const SizedBox(height: 16),
 
-              // ── Header card standard ───────────────────────────────
+              // ── Header card ────────────────────────────────────────
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -291,7 +292,15 @@ class _ChildCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    // ── Navigation vers EnfantExPage ──────────────────
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EnfantExPage(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kCyan,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

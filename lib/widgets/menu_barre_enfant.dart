@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:edidact_app/pages/parent/home_page.dart';
-import 'package:edidact_app/pages/parent/reward_page.dart';
-import 'package:edidact_app/pages/parent/mes_enfants_page.dart';
-import 'package:edidact_app/pages/parent/historique.dart';
-import 'package:edidact_app/pages/parent/profile.dart';
+import 'package:edidact_app/pages/enfant/enfant_ex.dart';
 
-class MenuBarre extends StatelessWidget {
-  const MenuBarre({super.key});
+// import 'package:edidact_app/pages/enfant/examens_page.dart';
+// import 'package:edidact_app/pages/enfant/resultats_page.dart';
+// import 'package:edidact_app/pages/enfant/recompense_page.dart';
+// import 'package:edidact_app/pages/auth/login_page.dart';
+
+class MenuBarreEnfant extends StatelessWidget {
+  const MenuBarreEnfant({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,21 +61,36 @@ class MenuBarre extends StatelessWidget {
                   // ── Menu items ───────────────────────────────────
                   _menuItem(
                     context: context,
-                    icon: Icons.bar_chart_rounded,
-                    label: 'Progression',
+                    icon: Icons.menu_book_rounded,
+                    label: 'Exercices',
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomePage()),
+                        MaterialPageRoute(
+                            builder: (_) => const EnfantExPage()),
                       );
                     },
                   ),
                   _menuItem(
                     context: context,
-                    icon: Icons.description_outlined,
+                    icon: Icons.assignment_rounded,
                     label: 'Examens',
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pop(context);
+                      // Navigator.push(context, MaterialPageRoute(
+                      //   builder: (_) => const ExamensPage()));
+                    },
+                  ),
+                  _menuItem(
+                    context: context,
+                    icon: Icons.bar_chart_rounded,
+                    label: 'Résultats',
+                    onTap: () {
+                      Navigator.pop(context);
+                      // Navigator.push(context, MaterialPageRoute(
+                      //   builder: (_) => const ResultatsPage()));
+                    },
                   ),
                   _menuItem(
                     context: context,
@@ -82,60 +98,26 @@ class MenuBarre extends StatelessWidget {
                     label: 'Récompenses',
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const RewardPage()),
-                      );
-                    },
-                  ),
-                  _menuItem(
-                    context: context,
-                    icon: Icons.supervised_user_circle_outlined,
-                    label: 'Mes enfants',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const MesEnfantsPage()),
-                      );
-                    },
-                  ),
-                  _menuItem(
-                    context: context,
-                    icon: Icons.history_outlined,
-                    label: 'Historique',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const HistoriquePage()),
-                      );
+                      // Navigator.push(context, MaterialPageRoute(
+                      //   builder: (_) => const RecompensePage()));
                     },
                   ),
 
                   const Spacer(),
 
-                  // ── Bottom items ─────────────────────────────────
-                  _menuItem(
-                    context: context,
-                    icon: Icons.person_outline,
-                    label: 'Profile',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ProfilePage()),
-                      );
-                    },
-                  ),
+                  // ── Déconnexion ──────────────────────────────────
                   _menuItem(
                     context: context,
                     icon: Icons.logout,
                     label: 'Déconnexion',
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pop(context);
+                      // Navigator.pushAndRemoveUntil(
+                      //   context,
+                      //   MaterialPageRoute(builder: (_) => const LoginPage()),
+                      //   (route) => false,
+                      // );
+                    },
                   ),
 
                   const SizedBox(height: 24),

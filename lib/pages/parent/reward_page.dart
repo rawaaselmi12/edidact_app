@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:edidact_app/widgets/menu_barre.dart';
-import 'package:edidact_app/pages/reward_creation_page.dart';
+import 'package:edidact_app/pages/parent/reward_creation_page.dart';
 
 const _kPurple    = Color(0xFF9C27B0);
 const _kCyan      = Color(0xFF00BCD4);
