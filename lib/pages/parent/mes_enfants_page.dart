@@ -64,7 +64,6 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Menu icon ─────────────────────────────────────────
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -79,7 +78,6 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
 
               const SizedBox(height: 16),
 
-              // ── Header card ────────────────────────────────────────
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -126,7 +124,6 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
 
               const SizedBox(height: 14),
 
-              // ── Search bar ─────────────────────────────────────────
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
@@ -157,7 +154,6 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
 
               const SizedBox(height: 12),
 
-              // ── Add button ─────────────────────────────────────────
               GestureDetector(
                 onTap: () {
                   showDialog(
@@ -254,7 +250,7 @@ class _ChildCard extends StatelessWidget {
                                 style: const TextStyle(color: Colors.black87)),
                           ],
                         ),
-                      ),
+                    ),
                     ],
                   ),
                 ),
@@ -292,7 +288,6 @@ class _ChildCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    // ── Navigation vers EnfantExPage ──────────────────
                     onPressed: () {
                       Navigator.push(
                         context,

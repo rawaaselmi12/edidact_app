@@ -50,7 +50,6 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // ── Hamburger ─────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.only(left: 16, top: 12, bottom: 4),
               child: GestureDetector(
@@ -59,7 +58,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
 
-            // ── Bannière violette standard ─────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
@@ -102,7 +100,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 14),
 
-            // ── Onglets ────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(

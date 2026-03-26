@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:edidact_app/widgets/menu_barre_enfant.dart';
-import 'package:edidact_app/pages/enfant/contenu_sous_matiere.dart';
 
 const _kCyan        = Color(0xFF00BCD4);
 const _kYellow      = Color(0xFFFCB317);
@@ -8,13 +7,13 @@ const _kYellowLight = Color(0xFFFFF0C2);
 const _kBlueLight   = Color(0xFFB2EBF2);
 const _kBlueDark    = Color.fromARGB(255, 8, 153, 189);
 
-class SousMatiere {
+class Lecon {
   final String name;
   final String description;
   final double progress;
   final Color color;
 
-  const SousMatiere({
+  const Lecon({
     required this.name,
     required this.description,
     required this.progress,
@@ -23,38 +22,32 @@ class SousMatiere {
 }
 
 // Données temporaires — sera remplacé par appel API Laravel
-// GET /api/sous-matieres?matiere_id=...
-const List<SousMatiere> _sousMatieres = [
-  SousMatiere(
-    name: 'a',
+// GET /api/lecons?sous_matiere_id=...
+const List<Lecon> _lecons = [
+  Lecon(
+    name: '......',
     description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
     progress: 0.0,
     color: _kYellowLight,
   ),
-  SousMatiere(
-    name: 'b',
+  Lecon(
+    name: '...',
     description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
     progress: 0.0,
     color: _kBlueLight,
   ),
-  SousMatiere(
-    name: 'c',
+  Lecon(
+    name: '.....',
     description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
     progress: 0.0,
     color: _kYellowLight,
-  ),
-  SousMatiere(
-    name: 'd.',
-    description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
-    progress: 0.0,
-    color: _kBlueLight,
   ),
 ];
 
-class SousMatierePage extends StatelessWidget {
-  final String matiereNom;
+class ContenuSousMatierePage extends StatelessWidget {
+  final String sousMatiereNom; // reçu depuis SousMatierePage
 
-  const SousMatierePage({super.key, required this.matiereNom});
+  const ContenuSousMatierePage({super.key, required this.sousMatiereNom});
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +89,7 @@ class SousMatierePage extends StatelessWidget {
                         color: Colors.red[400], size: 20),
                     const SizedBox(width: 10),
                     Text(
-                      matiereNom,
+                      sousMatiereNom,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -109,7 +102,8 @@ class SousMatierePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              ..._sousMatieres.map((sm) => _SousMatiereCard(sousMatiere: sm)),
+              // ── Leçon cards (jaune/bleu alternés) ─────────────
+              ..._lecons.map((lecon) => _LeconCard(lecon: lecon)),
             ],
           ),
         ),
@@ -118,30 +112,23 @@ class SousMatierePage extends StatelessWidget {
   }
 }
 
-class _SousMatiereCard extends StatelessWidget {
-  final SousMatiere sousMatiere;
-  const _SousMatiereCard({required this.sousMatiere});
+class _LeconCard extends StatelessWidget {
+  final Lecon lecon;
+  const _LeconCard({required this.lecon});
 
   @override
   Widget build(BuildContext context) {
-    final int percent = (sousMatiere.progress * 100).round();
-    final bool isYellow = sousMatiere.color == _kYellowLight;
+    final int percent = (lecon.progress * 100).round();
+    final bool isYellow = lecon.color == _kYellowLight;
 
     return GestureDetector(
-      //  Clic → ContenuSousMatierePage
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ContenuSousMatierePage(
-            sousMatiereNom: sousMatiere.name,
-          ),
-        ),
-      ),
+      onTap: () {
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
         decoration: BoxDecoration(
-          color: sousMatiere.color,
+          color: lecon.color,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isYellow
@@ -154,7 +141,7 @@ class _SousMatiereCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              sousMatiere.name,
+              lecon.name,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -163,7 +150,7 @@ class _SousMatiereCard extends StatelessWidget {
             ),
             const SizedBox(height: 3),
             Text(
-              sousMatiere.description,
+              lecon.description,
               style: TextStyle(fontSize: 11.5, color: Colors.grey[600]),
             ),
             const SizedBox(height: 10),
@@ -192,7 +179,7 @@ class _SousMatiereCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
-                value: sousMatiere.progress,
+                value: lecon.progress,
                 minHeight: 7,
                 backgroundColor: Colors.white.withOpacity(0.6),
                 valueColor: AlwaysStoppedAnimation<Color>(

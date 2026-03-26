@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:edidact_app/pages/enfant/enfant_ex.dart';
-
+import 'package:edidact_app/pages/enfant/mes_recompenses.dart';
 // import 'package:edidact_app/pages/enfant/examens_page.dart';
 // import 'package:edidact_app/pages/enfant/resultats_page.dart';
 // import 'package:edidact_app/pages/enfant/recompense_page.dart';
@@ -15,7 +15,6 @@ class MenuBarreEnfant extends StatelessWidget {
       backgroundColor: Colors.transparent,
       body: Row(
         children: [
-          // ── Drawer panel ─────────────────────────────────────────
           Container(
             width: 230,
             height: double.infinity,
@@ -32,7 +31,6 @@ class MenuBarreEnfant extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
 
-                  // ── Logo + App name ──────────────────────────────
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
@@ -58,7 +56,6 @@ class MenuBarreEnfant extends StatelessWidget {
 
                   const SizedBox(height: 48),
 
-                  // ── Menu items ───────────────────────────────────
                   _menuItem(
                     context: context,
                     icon: Icons.menu_book_rounded,
@@ -78,8 +75,6 @@ class MenuBarreEnfant extends StatelessWidget {
                     label: 'Examens',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigator.push(context, MaterialPageRoute(
-                      //   builder: (_) => const ExamensPage()));
                     },
                   ),
                   _menuItem(
@@ -88,8 +83,7 @@ class MenuBarreEnfant extends StatelessWidget {
                     label: 'Résultats',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigator.push(context, MaterialPageRoute(
-                      //   builder: (_) => const ResultatsPage()));
+ 
                     },
                   ),
                   _menuItem(
@@ -98,14 +92,16 @@ class MenuBarreEnfant extends StatelessWidget {
                     label: 'Récompenses',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigator.push(context, MaterialPageRoute(
-                      //   builder: (_) => const RecompensePage()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const MesRecompensePage()),
+                      );
                     },
                   ),
 
                   const Spacer(),
 
-                  // ── Déconnexion ──────────────────────────────────
                   _menuItem(
                     context: context,
                     icon: Icons.logout,
@@ -114,8 +110,7 @@ class MenuBarreEnfant extends StatelessWidget {
                       Navigator.pop(context);
                       // Navigator.pushAndRemoveUntil(
                       //   context,
-                      //   MaterialPageRoute(builder: (_) => const LoginPage()),
-                      //   (route) => false,
+                      
                       // );
                     },
                   ),
@@ -126,7 +121,6 @@ class MenuBarreEnfant extends StatelessWidget {
             ),
           ),
 
-          // ── Zone de fermeture ─────────────────────────────────────
           Expanded(
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
