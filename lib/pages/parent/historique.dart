@@ -42,11 +42,11 @@ final List<Enfant> _enfants = [
     recompenses: 5,
     historique: [
       HistoriqueItem(date: '04/06/2025', heure: '6:00',
-          message: 'enfant2 a réussi l\'activité «\u202fL\'infinitif du verbe\u202f»'),
+          message: 'enfant2 a réussi l\'activité « L\'infinitif du verbe »'),
       HistoriqueItem(date: '02/06/2025', heure: '6:00',
-          message: 'enfant2 a réussi l\'activité «\u202faddition des nombres\u202f»'),
+          message: 'enfant2 a réussi l\'activité « addition des nombres »'),
       HistoriqueItem(date: '04/06/2025', heure: '6:00',
-          message: 'enfant2 a utilisé la récompense «\u202frécompense anglais\u202f»'),
+          message: 'enfant2 a utilisé la récompense « récompense anglais »'),
     ],
   ),
 ];
@@ -81,36 +81,38 @@ class _HistoriquePageState extends State<HistoriquePage> {
   Widget build(BuildContext context) {
     final enfant = _enfants[_selectedIndex];
 
+    final size = MediaQuery.of(context).size;
+    final isTabletLandscape = size.width > 900 && size.width > size.height;
+
+    final scale = isTabletLandscape ? 1.5 : 1.0;
+    double s(double value) => value * scale;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: s(16), vertical: s(12)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              // ── Hamburger ─────────────────────────────────────────
               GestureDetector(
                 onTap: _openMenu,
-                child: const Icon(Icons.menu, size: 34, color: _kCyan),
+                child: Icon(Icons.menu, size: s(34), color: _kCyan),
               ),
+              SizedBox(height: s(16)),
 
-              const SizedBox(height: 16),
-
-              // ── Bannière violette standard ─────────────────────────
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: s(20), vertical: s(20)),
                 decoration: BoxDecoration(
                   color: _kPurple,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(s(18)),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Text('🏆', style: TextStyle(fontSize: 32)),
-                    SizedBox(width: 14),
+                  children: [
+                    Text('🏆', style: TextStyle(fontSize: s(32))),
+                    SizedBox(width: s(14)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,14 +121,14 @@ class _HistoriquePageState extends State<HistoriquePage> {
                             'Historique',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: s(16),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: s(8)),
                           Text(
-                            'Suivez l\'évolution et les récompenses\nobtenues par vos enfants',
-                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                            'Suivez l\'évolution et les récompenses obtenues par vos enfants',
+                            style: TextStyle(color: Colors.white70, fontSize: s(13)),
                           ),
                         ],
                       ),
@@ -135,9 +137,8 @@ class _HistoriquePageState extends State<HistoriquePage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: s(16)),
 
-              // ── Onglets enfants ────────────────────────────────────
               Row(
                 children: List.generate(_enfants.length, (index) {
                   final isSelected = _selectedIndex == index;
@@ -145,12 +146,12 @@ class _HistoriquePageState extends State<HistoriquePage> {
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedIndex = index),
                       child: Container(
-                        margin: EdgeInsets.only(right: index == 0 ? 8 : 0),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        margin: EdgeInsets.only(right: index == 0 ? s(6) : 0),
+                        padding: EdgeInsets.symmetric(vertical: s(6)), // réduit
                         decoration: BoxDecoration(
                           color: isSelected ? _kCyan : Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: _kCyan, width: 1.5),
+                          borderRadius: BorderRadius.circular(s(8)), // réduit
+                          border: Border.all(color: _kCyan, width: 1.3),
                         ),
                         alignment: Alignment.center,
                         child: Text(
@@ -158,7 +159,7 @@ class _HistoriquePageState extends State<HistoriquePage> {
                           style: TextStyle(
                             color: isSelected ? Colors.white : _kCyan,
                             fontWeight: FontWeight.w600,
-                            fontSize: 15,
+                            fontSize: s(12), // réduit
                           ),
                         ),
                       ),
@@ -167,17 +168,19 @@ class _HistoriquePageState extends State<HistoriquePage> {
                 }),
               ),
 
-              const SizedBox(height: 22),
+              SizedBox(height: s(22)),
 
               Center(
                 child: Container(
                   width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 340),
-                  padding: const EdgeInsets.all(16),
+                  constraints: BoxConstraints(
+                    maxWidth: isTabletLandscape ? size.width * 0.8 : s(340),
+                  ),
+                  padding: EdgeInsets.all(s(16)),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: _kCyanLight, width: 1.5),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(s(16)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,28 +188,35 @@ class _HistoriquePageState extends State<HistoriquePage> {
                       Row(
                         children: [
                           CircleAvatar(
-                            radius: 22,
+                            radius: s(22),
                             backgroundColor: Colors.grey.shade300,
-                            child: Icon(Icons.person, color: Colors.grey.shade500, size: 24),
+                            child: Icon(Icons.person, color: Colors.grey.shade500, size: s(24)),
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: s(10)),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(enfant.nom,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87)),
-                                const SizedBox(height: 4),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: s(14))),
+                                SizedBox(height: s(4)),
                                 Wrap(
-                                  spacing: 4,
+                                  spacing: s(4),
                                   children: [
                                     _Badge(label: '${enfant.niveau} 🪙',
-                                        bg: Colors.orange.shade100, fg: Colors.orange.shade800),
+                                        bg: Colors.orange.shade100,
+                                        fg: Colors.orange.shade800,
+                                        scale: scale),
                                     _Badge(label: '${enfant.activites} activité',
-                                        bg: _kCyan.withOpacity(0.15), fg: _kCyan),
+                                        bg: _kCyan.withOpacity(0.15),
+                                        fg: _kCyan,
+                                        scale: scale),
                                     _Badge(label: '${enfant.recompenses} Récompense',
-                                        bg: _kPurple.withOpacity(0.12), fg: _kPurple),
+                                        bg: _kPurple.withOpacity(0.12),
+                                        fg: _kPurple,
+                                        scale: scale),
                                   ],
                                 ),
                               ],
@@ -214,14 +224,14 @@ class _HistoriquePageState extends State<HistoriquePage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      Divider(height: 1, color: _kCyanLight),
-                      const SizedBox(height: 12),
+                      SizedBox(height: s(12)),
+                      Divider(color: _kCyanLight),
+                      SizedBox(height: s(12)),
                       enfant.historique.isEmpty
-                          ? _EmptyState()
+                          ? _EmptyState(scale: scale)
                           : Column(
                               children: enfant.historique
-                                  .map((item) => _HistoriqueRow(item: item))
+                                  .map((item) => _HistoriqueRow(item: item, scale: scale))
                                   .toList(),
                             ),
                     ],
@@ -229,7 +239,7 @@ class _HistoriquePageState extends State<HistoriquePage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: s(24)),
             ],
           ),
         ),
@@ -239,23 +249,27 @@ class _HistoriquePageState extends State<HistoriquePage> {
 }
 
 class _EmptyState extends StatelessWidget {
+  final double scale;
+  const _EmptyState({this.scale = 1});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 28),
+      padding: EdgeInsets.symmetric(vertical: 28 * scale),
       decoration: BoxDecoration(
         color: _kCyan.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _kCyanLight, width: 1),
+        borderRadius: BorderRadius.circular(12 * scale),
+        border: Border.all(color: _kCyanLight),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Text('Aucune activité',
-              style: TextStyle(color: _kCyan, fontWeight: FontWeight.w600, fontSize: 14)),
-          SizedBox(height: 6),
+              style: TextStyle(color: _kCyan, fontWeight: FontWeight.w600)),
+          SizedBox(height: 6 * scale),
           Text('Aucun historique est disponible pour enfant !',
-              style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
+              style: TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center),
         ],
       ),
     );
@@ -264,37 +278,36 @@ class _EmptyState extends StatelessWidget {
 
 class _HistoriqueRow extends StatelessWidget {
   final HistoriqueItem item;
-  const _HistoriqueRow({required this.item});
+  final double scale;
+  const _HistoriqueRow({required this.item, this.scale = 1});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10 * scale),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 10 * scale),
         decoration: BoxDecoration(
           color: _kCyan.withOpacity(0.04),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _kCyanLight, width: 1.2),
+          borderRadius: BorderRadius.circular(10 * scale),
+          border: Border.all(color: _kCyanLight),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: 18,
+              radius: 18 * scale,
               backgroundColor: _kCyan.withOpacity(0.15),
-              child: const Icon(Icons.person, size: 20, color: _kCyan),
+              child: Icon(Icons.person, color: _kCyan),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10 * scale),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${item.date} · ${item.heure}',
-                      style: const TextStyle(fontSize: 10, color: _kCyan)),
-                  const SizedBox(height: 4),
-                  Text(item.message,
-                      style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                      style: TextStyle(fontSize: 10 * scale, color: _kCyan)),
+                  SizedBox(height: 4 * scale),
+                  Text(item.message),
                 ],
               ),
             ),
@@ -309,15 +322,31 @@ class _Badge extends StatelessWidget {
   final String label;
   final Color bg;
   final Color fg;
-  const _Badge({required this.label, required this.bg, required this.fg});
+  final double scale;
+
+  const _Badge({
+    required this.label,
+    required this.bg,
+    required this.fg,
+    this.scale = 1,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: TextStyle(fontSize: 10, color: fg, fontWeight: FontWeight.w600)),
+      padding: EdgeInsets.symmetric(horizontal: 7 * scale, vertical: 2 * scale),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20 * scale),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10 * scale,
+          color: fg,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }

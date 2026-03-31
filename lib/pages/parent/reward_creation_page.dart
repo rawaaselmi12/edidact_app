@@ -17,6 +17,12 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
   final List<String> _coins = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   final List<String> _enfants = ['enfant 1', 'enfant 2', 'enfant 3'];
 
+  bool _isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.shortestSide >= 600;
+
+  bool _isLandscape(BuildContext context) =>
+      MediaQuery.of(context).orientation == Orientation.landscape;
+
   @override
   void dispose() {
     _titreController.dispose();
@@ -25,13 +31,22 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet    = _isTablet(context);
+    final isLandscape = _isLandscape(context);
+
+    final EdgeInsets insetPadding = isTablet
+        ? (isLandscape
+            ? const EdgeInsets.symmetric(horizontal: 60, vertical: 30)
+            : const EdgeInsets.symmetric(horizontal: 80, vertical: 60))
+        : const EdgeInsets.symmetric(horizontal: 20, vertical: 40);
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      insetPadding: insetPadding,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(isTablet ? 24 : 20),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.15),
@@ -40,163 +55,277 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // header
-            Stack(
-              alignment: Alignment.center,
+        child: isLandscape && isTablet
+            ? _buildLandscapeLayout(context)
+            : _buildPortraitLayout(context, isTablet),
+      ),
+    );
+  }
+
+  Widget _buildLandscapeLayout(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildHeader(context, fontSize: 20),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: const Text(
-                    'Créer une récompense',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF26C6DA),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 12,
-                  top: 10,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        shape: BoxShape.circle,
+                _fieldLabel('Image de la récompense', fontSize: 15),
+                const SizedBox(height: 8),
+                _buildImagePicker(),
+                const SizedBox(height: 20),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _fieldLabel('Titre', fontSize: 15),
+                          _textField(_titreController, '..............', fontSize: 14),
+                          const SizedBox(height: 16),
+                          _fieldLabel('Nombre de coins', fontSize: 15),
+                          _dropdownField(
+                            value: _coinsSelected,
+                            items: _coins,
+                            hint: '...............',
+                            fontSize: 14,
+                            onChanged: (v) => setState(() => _coinsSelected = v),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.close, size: 16, color: Colors.black54),
                     ),
-                  ),
+                    const SizedBox(width: 20),
+                    // Colonne droite
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _fieldLabel('Catégorie', fontSize: 15),
+                          _dropdownField(
+                            value: _categorieSelected,
+                            items: _categories,
+                            hint: '...............',
+                            fontSize: 14,
+                            onChanged: (v) => setState(() => _categorieSelected = v),
+                          ),
+                          const SizedBox(height: 16),
+                          _fieldLabel('Enfants concernés', fontSize: 15),
+                          _dropdownField(
+                            value: _enfantSelected,
+                            items: _enfants,
+                            hint: '...............',
+                            fontSize: 14,
+                            onChanged: (v) => setState(() => _enfantSelected = v),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+
+                const SizedBox(height: 24),
+
+                _buildButtons(context, fontSize: 16, verticalPad: 14),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Form
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Titre
-                  _fieldLabel('Titre:'),
-                  _textField(_titreController, '......'),
-                  const SizedBox(height: 16),
+//portrait
+  Widget _buildPortraitLayout(BuildContext context, bool isTablet) {
+    final double labelSize  = isTablet ? 15 : 13;
+    final double fieldSize  = isTablet ? 14 : 13;
+    final double btnSize    = isTablet ? 16 : 15;
+    final double btnPad     = isTablet ? 14 : 12;
+    final double hPad       = isTablet ? 28 : 20;
+    final double spacing    = isTablet ? 18 : 14;
 
-                  // Catégorie
-                  _fieldLabel('Catégorie :'),
-                  _dropdownField(
-                    value: _categorieSelected,
-                    items: _categories,
-                    hint: '........',
-                    onChanged: (v) => setState(() => _categorieSelected = v),
-                  ),
-                  const SizedBox(height: 14),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildHeader(context, fontSize: isTablet ? 20 : 18),
 
-                  // Nombre de coins
-                  _fieldLabel('nombre de coins:'),
-                  _dropdownField(
-                    value: _coinsSelected,
-                    items: _coins,
-                    hint: '.......',
-                    onChanged: (v) => setState(() => _coinsSelected = v),
-                  ),
-                  const SizedBox(height: 14),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _fieldLabel('Titre:', fontSize: labelSize),
+                _textField(_titreController, '......', fontSize: fieldSize),
+                SizedBox(height: spacing),
 
-                  // Enfants concernées
-                  _fieldLabel('Enfants concernées:'),
-                  _dropdownField(
-                    value: _enfantSelected,
-                    items: _enfants,
-                    hint: '.........',
-                    onChanged: (v) => setState(() => _enfantSelected = v),
-                  ),
-                  const SizedBox(height: 24),
+                _fieldLabel('Catégorie :', fontSize: labelSize),
+                _dropdownField(
+                  value: _categorieSelected,
+                  items: _categories,
+                  hint: '........',
+                  fontSize: fieldSize,
+                  onChanged: (v) => setState(() => _categorieSelected = v),
+                ),
+                SizedBox(height: spacing),
 
-                  // Buttons
-                  Row(
-                    children: [
-                      // Valider
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF26C6DA),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: const Text(
-                              'valider',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Annuler
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: const Color(0xFF26C6DA),
-                                width: 1.5,
-                              ),
-                            ),
-                            child: const Text(
-                              'annuler',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF26C6DA),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                _fieldLabel('nombre de coins:', fontSize: labelSize),
+                _dropdownField(
+                  value: _coinsSelected,
+                  items: _coins,
+                  hint: '.......',
+                  fontSize: fieldSize,
+                  onChanged: (v) => setState(() => _coinsSelected = v),
+                ),
+                SizedBox(height: spacing),
+
+                _fieldLabel('Enfants concernées:', fontSize: labelSize),
+                _dropdownField(
+                  value: _enfantSelected,
+                  items: _enfants,
+                  hint: '.........',
+                  fontSize: fieldSize,
+                  onChanged: (v) => setState(() => _enfantSelected = v),
+                ),
+                SizedBox(height: isTablet ? 28 : 24),
+
+                _buildButtons(context, fontSize: btnSize, verticalPad: btnPad),
+                SizedBox(height: isTablet ? 24 : 20),
+              ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, {required double fontSize}) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Text(
+            'Créer une récompense',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF26C6DA),
+            ),
+          ),
+        ),
+        Positioned(
+          right: 12,
+          top: 10,
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, size: 16, color: Colors.black54),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImagePicker() {
+    return GestureDetector(
+      onTap: () {
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF26C6DA),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text(
+          'ajouter image',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
         ),
       ),
     );
   }
 
+  Widget _buildButtons(BuildContext context, {required double fontSize, required double verticalPad}) {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: verticalPad),
+              decoration: BoxDecoration(
+                color: const Color(0xFF26C6DA),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Text(
+                'valider',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: verticalPad),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: const Color(0xFF26C6DA), width: 1.5),
+              ),
+              child: Text(
+                'annuler',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFF26C6DA),
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-  Widget _fieldLabel(String text) {
+  Widget _fieldLabel(String text, {double fontSize = 13}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: const TextStyle(
-          fontSize: 13,
+        style: TextStyle(
+          fontSize: fontSize,
           fontWeight: FontWeight.w600,
           color: Colors.black87,
         ),
@@ -204,7 +333,7 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
     );
   }
 
-  Widget _textField(TextEditingController controller, String hint) {
+  Widget _textField(TextEditingController controller, String hint, {double fontSize = 13}) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[300]!),
@@ -212,12 +341,11 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(fontSize: 13),
+        style: TextStyle(fontSize: fontSize),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: fontSize),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           border: InputBorder.none,
         ),
       ),
@@ -229,6 +357,7 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
     required List<String> items,
     required String hint,
     required ValueChanged<String?> onChanged,
+    double fontSize = 13,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -240,15 +369,10 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          hint: Text(
-            hint,
-            style: TextStyle(color: Colors.grey[400], fontSize: 13),
-          ),
+          hint: Text(hint, style: TextStyle(color: Colors.grey[400], fontSize: fontSize)),
           icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-          style: const TextStyle(fontSize: 13, color: Colors.black87),
-          items: items
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
+          style: TextStyle(fontSize: fontSize, color: Colors.black87),
+          items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
           onChanged: onChanged,
         ),
       ),

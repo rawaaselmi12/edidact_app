@@ -30,17 +30,26 @@ const List<Reward> _rewards = [
 class RewardPage extends StatelessWidget {
   const RewardPage({super.key});
 
+  bool _isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.shortestSide >= 600;
+
+  bool _isLandscape(BuildContext context) =>
+      MediaQuery.of(context).orientation == Orientation.landscape;
+
   @override
   Widget build(BuildContext context) {
+    final isTablet    = _isTablet(context);
+    final isLandscape = _isLandscape(context);
+    final double hPad = isTablet ? 28 : 16;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Menu icon ─────────────────────────────────────────
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -50,91 +59,151 @@ class RewardPage extends StatelessWidget {
                     pageBuilder: (_, __, ___) => const MenuBarre(),
                   ),
                 ),
-                child: const Icon(Icons.menu, size: 34, color: _kCyan),
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── Header card standard ───────────────────────────────
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                decoration: BoxDecoration(
-                  color: _kPurple,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Text('🏆', style: TextStyle(fontSize: 32)),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Catalogue de récompenses',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Créez et gérez les récompenses pour\nmotiver vos enfants',
-                            style: TextStyle(color: Colors.white70, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                child: Icon(
+                  Icons.menu,
+                  size: isTablet ? 40 : 34,
+                  color: _kCyan,
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: isTablet ? 22 : 16),
 
-              // ── Add button ─────────────────────────────────────────
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    barrierColor: Colors.black45,
-                    builder: (_) => const RewardCreationPage(),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: _kCyanLight,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add, color: Colors.white, size: 20),
-                      SizedBox(width: 8),
-                      Text('ajouter récompense',
-                          style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                ),
-              ),
+              _buildHeaderCard(isTablet),
 
-              const SizedBox(height: 8),
+              SizedBox(height: isTablet ? 18 : 12),
 
-              const Text(
+              Text(
                 'Les récompenses',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: TextStyle(
+                  fontSize: isTablet ? 22 : 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: isTablet ? 14 : 8),
 
-              ..._rewards.map((r) => _RewardCard(reward: r)),
+              isLandscape
+                  ? _buildLandscapeLayout(context, isTablet)
+                  : _buildPortraitLayout(context, isTablet),
             ],
           ),
+        ),
+      ),
+    );
+  }
+  Widget _buildLandscapeLayout(BuildContext context, bool isTablet) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.35,
+          child: _buildAddButton(context, isTablet, isLandscape: true),
+        ),
+        SizedBox(width: isTablet ? 18 : 12),
+        Expanded(
+          child: Column(
+            children: _rewards
+                .map((r) => _RewardCard(reward: r, isTablet: isTablet))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPortraitLayout(BuildContext context, bool isTablet) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAddButton(context, isTablet),
+        SizedBox(height: isTablet ? 14 : 8),
+        Column(
+          children: _rewards
+              .map((r) => _RewardCard(reward: r, isTablet: isTablet))
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCard(bool isTablet) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 26 : 20,
+        vertical:   isTablet ? 24 : 20,
+      ),
+      decoration: BoxDecoration(
+        color: _kPurple,
+        borderRadius: BorderRadius.circular(isTablet ? 22 : 18),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('🏆', style: TextStyle(fontSize: isTablet ? 40 : 32)),
+          SizedBox(width: isTablet ? 18 : 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Catalogue de récompenses',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isTablet ? 19 : 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: isTablet ? 10 : 8),
+                Text(
+                  'Créez et gérez les récompenses pour motiver vos enfants',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: isTablet ? 14 : 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildAddButton(BuildContext context, bool isTablet, {bool isLandscape = false}) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          barrierColor: Colors.black45,
+          builder: (_) => const RewardCreationPage(),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        margin: EdgeInsets.symmetric(vertical: isTablet ? 6 : 8),
+        height: isLandscape ? 160 : null,
+        padding: EdgeInsets.symmetric(vertical: isTablet ? 15 : 12),
+        decoration: BoxDecoration(
+          color: _kCyanLight,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, color: Colors.white, size: isLandscape ? 40 : (isTablet ? 24 : 20)),
+            SizedBox(height: isLandscape ? 12 : 0),
+            if (!isLandscape) const SizedBox(height: 0),
+            Text(
+              isLandscape ? ' ajouter\nrécompense' : 'ajouter récompense',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isLandscape ? 17 : (isTablet ? 17 : 15),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -143,15 +212,24 @@ class RewardPage extends StatelessWidget {
 
 class _RewardCard extends StatelessWidget {
   final Reward reward;
-  const _RewardCard({required this.reward});
+  final bool isTablet;
+  const _RewardCard({required this.reward, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: isTablet ? EdgeInsets.zero : const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-color: const Color(0xFFECFAFD),        
-borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFECFAFD),
+        borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+        border: Border.all(color: const Color(0xFF4DD0E1), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4DD0E1).withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,11 +238,21 @@ borderRadius: BorderRadius.circular(16),
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Container(
-                  height: 140,
+                child: Image.asset(
+                  'assets/images/reward_illustration.png.png',
+                  height: isTablet ? 160 : 140,
                   width: double.infinity,
-                  color: _kCyan,
-                  child: const _RewardIllustration(),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: isTablet ? 160 : 140,
+                    width: double.infinity,
+                    color: _kCyan,
+                    child: Icon(
+                      Icons.image_not_supported,
+                      size: isTablet ? 70 : 60,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
               Positioned(
@@ -179,30 +267,38 @@ borderRadius: BorderRadius.circular(16),
               ),
             ],
           ),
+
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(isTablet ? 16 : 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(reward.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87)),
-                const SizedBox(height: 8),
+                Text(
+                  reward.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: isTablet ? 16 : 14,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: isTablet ? 10 : 8),
                 Row(
                   children: [
-                    _CategoryChip(label: reward.category),
+                    _CategoryChip(label: reward.category, isTablet: isTablet),
                     const Spacer(),
-                    _CoinsChip(count: reward.coins),
+                    _CoinsChip(count: reward.coins, isTablet: isTablet),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: isTablet ? 10 : 8),
                 _InfoRow(
-  icon: Icons.person_outline,
-  iconColor: _kCyan,
-  label: reward.child,
-  bgColor: const Color(0xFFB2EBF2),
-),
-                const SizedBox(height: 6),
-                _StatusRow(used: reward.used),
+                  icon:      Icons.person_outline,
+                  iconColor: _kCyan,
+                  label:     reward.child,
+                  bgColor:   const Color(0xFFB2EBF2),
+                  isTablet:  isTablet,
+                ),
+                SizedBox(height: isTablet ? 8 : 6),
+                _StatusRow(used: reward.used, isTablet: isTablet),
               ],
             ),
           ),
@@ -214,28 +310,44 @@ borderRadius: BorderRadius.circular(16),
 
 class _CategoryChip extends StatelessWidget {
   final String label;
-  const _CategoryChip({required this.label});
+  final bool isTablet;
+  const _CategoryChip({required this.label, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 14 : 10,
+        vertical:   isTablet ? 6  : 4,
+      ),
       decoration: BoxDecoration(
-          color: _kPurple.withOpacity(0.5), borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
+        color: _kPurple,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: isTablet ? 13 : 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 }
 
 class _CoinsChip extends StatelessWidget {
   final int count;
-  const _CoinsChip({required this.count});
+  final bool isTablet;
+  const _CoinsChip({required this.count, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 14 : 10,
+        vertical:   isTablet ? 6  : 4,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF9C4),
         borderRadius: BorderRadius.circular(20),
@@ -243,10 +355,18 @@ class _CoinsChip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('$count',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
-          const SizedBox(width: 4),
-          const Icon(Icons.monetization_on, color: Color(0xFFFDD835), size: 16),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: isTablet ? 14 : 13,
+              color: Colors.black87,
+            ),
+          ),
+          SizedBox(width: isTablet ? 6 : 4),
+          Icon(Icons.monetization_on,
+              color: const Color(0xFFFDD835),
+              size: isTablet ? 18 : 16),
         ],
       ),
     );
@@ -255,22 +375,42 @@ class _CoinsChip extends StatelessWidget {
 
 class _InfoRow extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
-  final String label;
-  final Color bgColor;
-  const _InfoRow({required this.icon, required this.iconColor,
-      required this.label, required this.bgColor});
+  final Color    iconColor;
+  final String   label;
+  final Color    bgColor;
+  final bool     isTablet;
+
+  const _InfoRow({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.bgColor,
+    this.isTablet = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 12 : 10,
+        vertical:   isTablet ? 8  : 6,
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         children: [
-          Icon(icon, color: iconColor, size: 16),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+          Icon(icon, color: iconColor, size: isTablet ? 18 : 16),
+          SizedBox(width: isTablet ? 8 : 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: isTablet ? 14 : 13,
+              color: Colors.black87,
+            ),
+          ),
         ],
       ),
     );
@@ -279,12 +419,17 @@ class _InfoRow extends StatelessWidget {
 
 class _StatusRow extends StatelessWidget {
   final bool used;
-  const _StatusRow({required this.used});
+  final bool isTablet;
+  const _StatusRow({required this.used, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 12 : 10,
+        vertical:   isTablet ? 8  : 6,
+      ),
       decoration: BoxDecoration(
         color: used ? const Color(0xFFF1F8E9) : const Color(0xFFFFF3E0),
         borderRadius: BorderRadius.circular(8),
@@ -293,51 +438,27 @@ class _StatusRow extends StatelessWidget {
         children: [
           Icon(
             used ? Icons.check_circle_outline : Icons.cancel_outlined,
-            color: used ? Colors.green : Colors.orange, size: 16,
+            color: used ? Colors.green : Colors.orange,
+            size: isTablet ? 18 : 16,
           ),
-          const SizedBox(width: 6),
-          Text('Statut : ', style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+          SizedBox(width: isTablet ? 8 : 6),
+          Text(
+            'Statut : ',
+            style: TextStyle(
+              fontSize: isTablet ? 14 : 13,
+              color: Colors.grey[700],
+            ),
+          ),
           Text(
             used ? 'utilisée' : 'non utilisée',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold,
-                color: used ? Colors.green : Colors.orange),
+            style: TextStyle(
+              fontSize: isTablet ? 14 : 13,
+              fontWeight: FontWeight.bold,
+              color: used ? Colors.green : Colors.orange,
+            ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _RewardIllustration extends StatelessWidget {
-  const _RewardIllustration();
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Positioned(
-          right: 40, top: 20,
-          child: Container(
-            width: 100, height: 100,
-            decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15), shape: BoxShape.circle),
-          ),
-        ),
-        const Positioned(
-          left: 30, bottom: 10,
-          child: Icon(Icons.emoji_events, color: Color(0xFFFDD835), size: 54),
-        ),
-        ...List.generate(6, (i) => Positioned(
-          top: 10.0 + (i * 18) % 100,
-          left: 10.0 + (i * 25) % 80,
-          child: Container(
-            width: 6, height: 6,
-            decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.4), shape: BoxShape.circle),
-          ),
-        )),
-      ],
     );
   }
 }
