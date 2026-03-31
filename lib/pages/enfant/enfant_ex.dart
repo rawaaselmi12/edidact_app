@@ -66,66 +66,87 @@ class EnfantExPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 32 : 16,
+            vertical: isTablet ? 20 : 12,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Menu icon → MenuBarreEnfant ────────────────────
+              
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
                   PageRouteBuilder(
                     opaque: false,
                     barrierColor: Colors.black45,
-                    pageBuilder: (_, __, ___) => const MenuBarreEnfant(),
+                    pageBuilder: (_, __, ___) =>
+                        const MenuBarreEnfant(),
                   ),
                 ),
-                child: const Icon(Icons.menu, size: 34, color: _kCyan),
+                child: Icon(
+                  Icons.menu,
+                  size: isTablet ? 40 : 34,
+                  color: _kCyan,
+                ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: isTablet ? 24 : 16),
 
-              // ── Header card ────────────────────────────────────
+              /// HEADER
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 28 : 20,
+                  vertical: isTablet ? 26 : 20,
+                ),
                 decoration: BoxDecoration(
                   color: _kPurple,
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: 56,
-                      height: 56,
+                      width: isTablet ? 70 : 56,
+                      height: isTablet ? 70 : 56,
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.person,
-                          color: Colors.white, size: 32),
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: isTablet ? 38 : 32,
+                      ),
                     ),
-                    const SizedBox(width: 16),
-                    const Column(
+                    SizedBox(width: isTablet ? 20 : 16),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Bonjour Enfant',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: isTablet ? 24 : 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           'Choisis une matière pour commencer',
-                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: isTablet ? 15 : 13,
+                          ),
                         ),
                       ],
                     ),
@@ -133,35 +154,71 @@ class EnfantExPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: isTablet ? 24 : 16),
 
-              // ── Table des matières label ───────────────────────
+              /// TABLE DES MATIERES
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 10),
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 20 : 16,
+                  vertical: isTablet ? 14 : 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: Colors.grey[300]!),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.menu_book_rounded,
-                        color: Colors.red[400], size: 18),
+                    Icon(
+                      Icons.menu_book_rounded,
+                      color: Colors.red[400],
+                      size: isTablet ? 22 : 18,
+                    ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       'Table des matières',
-                      style: TextStyle(fontSize: 13, color: Colors.black87),
+                      style: TextStyle(
+                        fontSize: isTablet ? 15 : 13,
+                        color: Colors.black87,
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: isTablet ? 24 : 16),
 
-              // ── Subject cards ──────────────────────────────────
-              ..._subjects.map((subject) => _SubjectCard(subject: subject)),
+              /// GRID ou LIST
+              if (isTablet && isLandscape)
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _subjects.length,
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 4.2,
+                  ),
+                  itemBuilder: (context, index) {
+                    return _SubjectCard(
+                      subject: _subjects[index],
+                      isTablet: true,
+                      isLandscape: true,
+                    );
+                  },
+                )
+              else
+                Column(
+                  children: _subjects
+                      .map((s) => _SubjectCard(
+                            subject: s,
+                            isTablet: isTablet,
+                          ))
+                      .toList(),
+                ),
             ],
           ),
         ),
@@ -172,14 +229,20 @@ class EnfantExPage extends StatelessWidget {
 
 class _SubjectCard extends StatelessWidget {
   final Subject subject;
-  const _SubjectCard({required this.subject});
+  final bool isTablet;
+  final bool isLandscape;
+
+  const _SubjectCard({
+    required this.subject,
+    this.isTablet = false,
+    this.isLandscape = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final int percent = (subject.progress * 100).round();
 
     return GestureDetector(
-      // ✅ Clic carte → SousMatierePage avec nom de la matière
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
@@ -187,56 +250,78 @@ class _SubjectCard extends StatelessWidget {
         ),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        margin: EdgeInsets.only(
+          bottom: isTablet && !isLandscape ? 0 : (isLandscape ? 0 : 14),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          isLandscape ? 4 : 10,  
+          16,
+          isLandscape ? 6 : 10,
+        ),
         decoration: BoxDecoration(
           color: subject.color,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start, 
+          mainAxisSize: MainAxisSize.min,
           children: [
+            // NOM DE LA MATIÈRE
             Text(
               subject.name,
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: isTablet ? 15 : 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
-            const SizedBox(height: 2),
+
+            SizedBox(height: isLandscape ? 6 : 4), 
+
+            // DESCRIPTION
             Text(
               subject.description,
-              style: TextStyle(fontSize: 11.5, color: Colors.grey[600]),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: isTablet ? 11 : 11.5,
+                color: Colors.grey[600],
+              ),
             ),
-            const SizedBox(height: 10),
+
+            SizedBox(height: isLandscape ? 13 : 6), 
+
+            // LIGNE PROGRESSION + %
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Progression',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
                   ),
                 ),
                 Text(
                   '$percent%',
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: TextStyle(
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+
+            SizedBox(height: isLandscape ? 14 : 9), // ← espace label → barre
+
+            // BARRE DE PROGRESSION
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
                 value: subject.progress,
-                minHeight: 7,
+                minHeight: isLandscape ? 9 : 6, // ← barre plus épaisse en paysage
                 backgroundColor: Colors.white.withOpacity(0.6),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   subject.color == _kYellowLight ? _kYellow : _kBlueDark,

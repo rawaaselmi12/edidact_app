@@ -22,19 +22,17 @@ class SousMatiere {
   });
 }
 
-// Données temporaires — sera remplacé par appel API Laravel
-// GET /api/sous-matieres?matiere_id=...
 const List<SousMatiere> _sousMatieres = [
   SousMatiere(
     name: 'a',
     description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
-    progress: 0.0,
+    progress: 0.14,
     color: _kYellowLight,
   ),
   SousMatiere(
     name: 'b',
     description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
-    progress: 0.0,
+    progress: 0.09,
     color: _kBlueLight,
   ),
   SousMatiere(
@@ -44,9 +42,9 @@ const List<SousMatiere> _sousMatieres = [
     color: _kYellowLight,
   ),
   SousMatiere(
-    name: 'd.',
+    name: 'd',
     description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
-    progress: 0.0,
+    progress: 0.36,
     color: _kBlueLight,
   ),
 ];
@@ -58,15 +56,21 @@ class SousMatierePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 20 : 12,
+            vertical: isTablet ? 16 : 10,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Menu icon → MenuBarreEnfant ────────────────────
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -76,29 +80,31 @@ class SousMatierePage extends StatelessWidget {
                     pageBuilder: (_, __, ___) => const MenuBarreEnfant(),
                   ),
                 ),
-                child: const Icon(Icons.menu, size: 34, color: _kCyan),
+                child: const Icon(Icons.menu, size: 30, color: _kCyan),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 14),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 18 : 14,
+                  vertical: isTablet ? 14 : 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: Colors.grey[300]!),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.menu_book_rounded,
-                        color: Colors.red[400], size: 20),
-                    const SizedBox(width: 10),
+                        color: Colors.red[400], size: isTablet ? 20 : 18),
+                    const SizedBox(width: 8),
                     Text(
                       matiereNom,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: isTablet ? 16 : 14,
                         fontWeight: FontWeight.w600,
                         color: _kCyan,
                       ),
@@ -107,9 +113,41 @@ class SousMatierePage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
-              ..._sousMatieres.map((sm) => _SousMatiereCard(sousMatiere: sm)),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (!isTablet || !isLandscape) {
+                    return Column(
+                      children: _sousMatieres
+                          .map((sm) => _SousMatiereCard(
+                              sousMatiere: sm,
+                              compact: true // <-- boxes plus petites
+                              ))
+                          .toList(),
+                    );
+                  }
+
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _sousMatieres.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 10,
+                      childAspectRatio:4.2,
+                    ),
+                    itemBuilder: (context, index) {
+                      return _SousMatiereCard(
+                        sousMatiere: _sousMatieres[index],
+                        compact: true, // <-- box compacte
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -120,15 +158,16 @@ class SousMatierePage extends StatelessWidget {
 
 class _SousMatiereCard extends StatelessWidget {
   final SousMatiere sousMatiere;
-  const _SousMatiereCard({required this.sousMatiere});
+  final bool compact; // <-- nouveau paramètre
+  const _SousMatiereCard({required this.sousMatiere, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
     final int percent = (sousMatiere.progress * 100).round();
     final bool isYellow = sousMatiere.color == _kYellowLight;
+    final isTablet = MediaQuery.of(context).size.width >= 600;
 
     return GestureDetector(
-      //  Clic → ContenuSousMatierePage
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
@@ -138,11 +177,16 @@ class _SousMatiereCard extends StatelessWidget {
         ),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        margin: EdgeInsets.only(bottom: compact ? 4 : 8),
+        padding: EdgeInsets.fromLTRB(
+          isTablet ? (compact ? 6 : 10) : (compact ? 4 : 8),
+          isTablet ? (compact ? 4 : 8) : (compact ? 3 : 6),
+          isTablet ? (compact ? 6 : 10) : (compact ? 4 : 8),
+          isTablet ? (compact ? 4 : 8) : (compact ? 3 : 6),
+        ),
         decoration: BoxDecoration(
           color: sousMatiere.color,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(compact ? 8 : 12),
           border: Border.all(
             color: isYellow
                 ? _kYellow.withOpacity(0.6)
@@ -152,11 +196,13 @@ class _SousMatiereCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
+            // Texte gardé tel quel
             Text(
               sousMatiere.name,
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: isTablet ? 17 : 15.5,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
@@ -164,9 +210,12 @@ class _SousMatiereCard extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               sousMatiere.description,
-              style: TextStyle(fontSize: 11.5, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: isTablet ? 14 : 12,
+                color: Colors.grey[600],
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -175,25 +224,23 @@ class _SousMatiereCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
                   ),
                 ),
                 Text(
                   '$percent%',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
                 value: sousMatiere.progress,
-                minHeight: 7,
+                minHeight: 6,
                 backgroundColor: Colors.white.withOpacity(0.6),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   isYellow ? _kYellow : _kBlueDark,
