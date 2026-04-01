@@ -9,7 +9,7 @@ class MenuBarre extends StatelessWidget {
   const MenuBarre({super.key});
 
   bool _isTablet(BuildContext context) =>
-      MediaQuery.of(context).size.shortestSide >= 600;
+      MediaQuery.of(context).size.shortestSide >= 520;
 
   bool _isLandscape(BuildContext context) =>
       MediaQuery.of(context).orientation == Orientation.landscape;
@@ -19,22 +19,49 @@ class MenuBarre extends StatelessWidget {
     final isTablet    = _isTablet(context);
     final isLandscape = _isLandscape(context);
 
-    // mobile 230, tablet portrait 290, tablet paysage 320
     final double drawerWidth = isTablet
-        ? (isLandscape ? 320 : 290)
-        : 230;
+        ? (isLandscape ? 320 : 360)
+        : 260;
 
-    // Tailles adaptatives
-    final double logoSize      = isTablet ? 78  : 65;
-    final double titleFontSize = isTablet ? 21  : 18;
-    final double iconSize      = isTablet ? 28  : 24;
-    final double itemFontSize  = isTablet ? 18  : 16;
-    final double hPad          = isTablet ? 30  : 24;
-    final double vPad          = isTablet ? 24  : 22;
-    final double topSpacing    = isTablet ? 32  : 20;
-    final double logoSpacing   = isTablet ? 60  : 48;
-    final double bottomSpacing = isTablet ? 32  : 24;
-    final double iconLabelGap  = isTablet ? 18  : 16;
+    final double logoSize = isTablet
+        ? (isLandscape ? 78 : 108)
+        : (isLandscape ? 65 : 72);
+
+    final double titleFontSize = isTablet
+        ? (isLandscape ? 21 : 28)
+        : (isLandscape ? 18 : 20);
+
+    final double iconSize = isTablet
+        ? (isLandscape ? 28 : 38)
+        : (isLandscape ? 24 : 28); 
+
+    final double itemFontSize = isTablet
+        ? (isLandscape ? 18 : 24)
+        : (isLandscape ? 16 : 18); 
+
+    final double hPad = isTablet
+        ? (isLandscape ? 30 : 38)
+        : (isLandscape ? 24 : 27);
+
+    final double vPad = isTablet
+        ? (isLandscape ? 24 : 32)
+        : (isLandscape ? 22 : 25);
+
+    final double topSpacing = isTablet
+        ? (isLandscape ? 32 : 48)
+        : (isLandscape ? 20 : 24);
+
+    final double logoSpacing = isTablet
+        ? (isLandscape ? 60 : 80)
+        : (isLandscape ? 48 : 54);
+
+    final double bottomSpacing = isTablet
+        ? (isLandscape ? 32 : 48)
+        : (isLandscape ? 24 : 28);
+
+    final double iconLabelGap = isTablet
+        ? (isLandscape ? 18 : 26)
+        : (isLandscape ? 16 : 20); 
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -65,13 +92,13 @@ class MenuBarre extends StatelessWidget {
                           width:  logoSize,
                           height: logoSize,
                         ),
-                        SizedBox(width: isTablet ? 14 : 10),
+                        SizedBox(width: isTablet ? 16 : 10),
                         Text(
                           'EDIDACT',
                           style: TextStyle(
-                            color:       Colors.white,
-                            fontSize:    titleFontSize,
-                            fontWeight:  FontWeight.bold,
+                            color:         Colors.white,
+                            fontSize:      titleFontSize,
+                            fontWeight:    FontWeight.bold,
                             letterSpacing: 1.2,
                           ),
                         ),

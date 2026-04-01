@@ -255,15 +255,7 @@ class _RewardCreationPageState extends State<RewardCreationPage> {
           color: const Color(0xFF26C6DA),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Text(
-          'ajouter image',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 15,
-          ),
-        ),
+        
       ),
     );
   }

@@ -15,31 +15,31 @@ class _HomePageState extends State<HomePage> {
     {
       'name': 'enfant 1',
       'coins': 10,
-      'progression': 50,
-      'coupes': 15,
+      'progression': 20,
+      'coupes': 5,
       'matieres': 6,
       'subjects': [
         {'name': 'Français', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
-        {'name': 'Science', 'progression': 0.40, 'or': 4, 'argent': 0, 'bronze': 0},
-        {'name': 'Anglais', 'progression': 0.70, 'or': 2, 'argent': 1, 'bronze': 0},
-        {'name': 'Maths', 'progression': 0.55, 'or': 1, 'argent': 3, 'bronze': 1},
-        {'name': 'Culture Générale', 'progression': 0.30, 'or': 0, 'argent': 1, 'bronze': 2},
-        {'name': 'Allemand', 'progression': 0.20, 'or': 0, 'argent': 0, 'bronze': 1},
+        {'name': 'Science', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Anglais', 'progression': 0.0, 'or': 0, 'argent':0, 'bronze': 0},
+        {'name': 'Maths', 'progression': 0.5, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Culture Générale', 'progression': 0.0, 'or': 0, 'argent': 1, 'bronze': 0},
+        {'name': 'Allemand', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
       ],
     },
     {
       'name': 'enfant 2',
       'coins': 8,
-      'progression': 35,
-      'coupes': 6,
+      'progression': 20,
+      'coupes': 2,
       'matieres': 6,
       'subjects': [
-        {'name': 'Maths', 'progression': 0.60, 'or': 1, 'argent': 2, 'bronze': 1},
-        {'name': 'Science', 'progression': 0.25, 'or': 0, 'argent': 1, 'bronze': 2},
-        {'name': 'Anglais', 'progression': 0.45, 'or': 0, 'argent': 2, 'bronze': 1},
-        {'name': 'Français', 'progression': 0.35, 'or': 0, 'argent': 0, 'bronze': 3},
-        {'name': 'Culture Générale', 'progression': 0.50, 'or': 1, 'argent': 1, 'bronze': 0},
-        {'name': 'Allemand', 'progression': 0.15, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Français', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Science', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Anglais', 'progression': 0.0, 'or': 0, 'argent':0, 'bronze': 0},
+        {'name': 'Maths', 'progression': 0.5, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Culture Générale', 'progression': 0.0, 'or': 0, 'argent': 1, 'bronze': 0},
+        {'name': 'Allemand', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
       ],
     },
   ];
@@ -52,8 +52,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final child      = _children[_selectedChild];
-    final isTablet   = _isTablet(context);
+    final child       = _children[_selectedChild];
+    final isTablet    = _isTablet(context);
     final isLandscape = _isLandscape(context);
     final double hPad = isTablet ? 28 : 16;
 
@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'Résumé pour enfant',
                 style: TextStyle(
-                  fontSize: isTablet ? 19 : 17,
+                  fontSize: isTablet ? 21 : 17,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -105,16 +105,14 @@ class _HomePageState extends State<HomePage> {
               
               isTablet && isLandscape
                   ? _buildSummaryRow4(child)
-                  : isTablet
-                      ? _buildSummaryGrid2x2(child)
-                      : _buildSummaryCardMobile(child),
+                  : _buildSummaryCardMobile(child, isTablet: isTablet),
 
               SizedBox(height: isTablet ? 20 : 16),
 
               Text(
                 'Détails pour matière',
                 style: TextStyle(
-                  fontSize: isTablet ? 19 : 17,
+                  fontSize: isTablet ? 21 : 17,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -122,13 +120,14 @@ class _HomePageState extends State<HomePage> {
 
               SizedBox(height: isTablet ? 14 : 12),
 
-              isTablet
+              
+              isTablet && isLandscape
                   ? _buildSubjectsGrid2Col(
                       child['subjects'] as List<Map<String, dynamic>>,
                     )
                   : Column(
                       children: (child['subjects'] as List<Map<String, dynamic>>)
-                          .map((s) => _subjectCard(s, isTablet: false))
+                          .map((s) => _subjectCard(s, isTablet: isTablet))
                           .toList(),
                     ),
             ],
@@ -152,7 +151,7 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text('📊', style: TextStyle(fontSize: isTablet ? 40 : 32)),
+          Text('📊', style: TextStyle(fontSize: isTablet ? 44 : 32)),
           SizedBox(width: isTablet ? 18 : 14),
           Expanded(
             child: Column(
@@ -162,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                   'Statistiques de mes enfants',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: isTablet ? 19 : 16,
+                    fontSize: isTablet ? 21 : 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -171,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                   'Suivez les progrès et les réussites de vos enfants pour toutes les matières',
                   style: TextStyle(
                     color: Colors.white70,
-                    fontSize: isTablet ? 14 : 13,
+                    fontSize: isTablet ? 16 : 13,
                   ),
                 ),
               ],
@@ -191,10 +190,10 @@ class _HomePageState extends State<HomePage> {
             onTap: () => setState(() => _selectedChild = index),
             child: Container(
               margin: EdgeInsets.only(right: index == 0 ? (isTablet ? 12 : 8) : 0),
-              padding: EdgeInsets.symmetric(vertical: isTablet ? 13 : 10),
+              padding: EdgeInsets.symmetric(vertical: isTablet ? 15 : 10),
               decoration: BoxDecoration(
                 color: isSelected ? const Color(0xFF00BCD4) : Colors.white,
-                borderRadius: BorderRadius.circular(isTablet ? 12 : 10),
+                borderRadius: BorderRadius.circular(isTablet ? 14 : 10),
                 border: Border.all(color: const Color(0xFF00BCD4), width: 1.5),
               ),
               alignment: Alignment.center,
@@ -203,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(
                   color: isSelected ? Colors.white : const Color(0xFF00BCD4),
                   fontWeight: FontWeight.w600,
-                  fontSize: isTablet ? 16 : 15,
+                  fontSize: isTablet ? 18 : 15,
                 ),
               ),
             ),
@@ -213,73 +212,38 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSummaryCardMobile(Map<String, dynamic> child) {
+  
+  Widget _buildSummaryCardMobile(Map<String, dynamic> child, {bool isTablet = false}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 20 : 14,
+        vertical:   isTablet ? 14 : 8,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFFB2EBF2),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(isTablet ? 18 : 14),
       ),
       child: Column(
         children: [
-          _summaryRow('🪙', '${child['coins']}', 'coins totaux'),
-          const SizedBox(height: 6),
-          _summaryRow('📈', '${child['progression']}%', 'progression moyenne'),
-          const SizedBox(height: 6),
-          _summaryRow('🏆', '${child['coupes']}', 'coupes gagnées'),
-          const SizedBox(height: 6),
-          _summaryRow('📚', '${child['matieres']}', 'matières étudiées'),
+          _summaryRow('🪙', '${child['coins']}',         'coins totaux',          isTablet: isTablet),
+          SizedBox(height: isTablet ? 12 : 6),
+          _summaryRow('📈', '${child['progression']}%',  'progression moyenne',   isTablet: isTablet),
+          SizedBox(height: isTablet ? 12 : 6),
+          _summaryRow('🏆', '${child['coupes']}',        'coupes gagnées',        isTablet: isTablet),
+          SizedBox(height: isTablet ? 12 : 6),
+          _summaryRow('📚', '${child['matieres']}',      'matières étudiées',     isTablet: isTablet),
         ],
       ),
     );
   }
 
-//portrait
-  Widget _buildSummaryGrid2x2(Map<String, dynamic> child) {
-    final stats = [
-      {'emoji': '🪙', 'value': '${child['coins']}',          'label': 'coins totaux'},
-      {'emoji': '📈', 'value': '${child['progression']}%',   'label': 'progression moyenne'},
-      {'emoji': '🏆', 'value': '${child['coupes']}',         'label': 'coupes gagnées'},
-      {'emoji': '📚', 'value': '${child['matieres']}',       'label': 'matières étudiées'},
-    ];
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFB2EBF2),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: _summaryTile(stats[0])),
-              const SizedBox(width: 12),
-              Expanded(child: _summaryTile(stats[1])),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(child: _summaryTile(stats[2])),
-              const SizedBox(width: 12),
-              Expanded(child: _summaryTile(stats[3])),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-//paysage 
   Widget _buildSummaryRow4(Map<String, dynamic> child) {
     final stats = [
-      {'emoji': '🪙', 'value': '${child['coins']}',          'label': 'coins totaux'},
-      {'emoji': '📈', 'value': '${child['progression']}%',   'label': 'progression moyenne'},
-      {'emoji': '🏆', 'value': '${child['coupes']}',         'label': 'coupes gagnées'},
-      {'emoji': '📚', 'value': '${child['matieres']}',       'label': 'matières étudiées'},
+      {'emoji': '🪙', 'value': '${child['coins']}',         'label': 'coins totaux'},
+      {'emoji': '📈', 'value': '${child['progression']}%',  'label': 'progression moyenne'},
+      {'emoji': '🏆', 'value': '${child['coupes']}',        'label': 'coupes gagnées'},
+      {'emoji': '📚', 'value': '${child['matieres']}',      'label': 'matières étudiées'},
     ];
 
     return Container(
@@ -290,11 +254,7 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
-        children: stats.map((s) {
-          return Expanded(
-            child: _summaryTile(s),
-          );
-        }).toList(),
+        children: stats.map((s) => Expanded(child: _summaryTile(s))).toList(),
       ),
     );
   }
@@ -359,26 +319,35 @@ class _HomePageState extends State<HomePage> {
     return Column(children: rows);
   }
 
-//mobile
-  Widget _summaryRow(String emoji, String value, String label) {
+  
+  Widget _summaryRow(String emoji, String value, String label, {bool isTablet = false}) {
     return Row(
       children: [
-        SizedBox(width: 28, child: Text(emoji, style: const TextStyle(fontSize: 17))),
-        const SizedBox(width: 12),
         SizedBox(
-          width: 46,
+          width: isTablet ? 36 : 28,
+          child: Text(emoji, style: TextStyle(fontSize: isTablet ? 22 : 17)),
+        ),
+        SizedBox(width: isTablet ? 16 : 12),
+        SizedBox(
+          width: isTablet ? 60 : 46,
           child: Text(
             value,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 13,
+              fontSize: isTablet ? 17 : 13,
               color: Colors.black87,
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+        SizedBox(width: isTablet ? 16 : 12),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isTablet ? 15 : 12,
+            color: Colors.black54,
+          ),
+        ),
       ],
     );
   }
@@ -389,10 +358,10 @@ class _HomePageState extends State<HomePage> {
 
     return Container(
       margin: isTablet ? EdgeInsets.zero : const EdgeInsets.only(bottom: 14),
-      padding: EdgeInsets.all(isTablet ? 16 : 14),
+      padding: EdgeInsets.all(isTablet ? 20 : 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(isTablet ? 16 : 14),
+        borderRadius: BorderRadius.circular(isTablet ? 18 : 14),
         border: Border.all(color: const Color(0xFFFFCC80), width: 1.5),
       ),
       child: Column(
@@ -404,59 +373,62 @@ class _HomePageState extends State<HomePage> {
               Text(
                 subject['name'],
                 style: TextStyle(
-                  fontSize: isTablet ? 17 : 16,
+                  fontSize: isTablet ? 19 : 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 12 : 8,
+                  vertical:   isTablet ? 5  : 3,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF3E0),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '$pct%',
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: TextStyle(
+                    fontSize: isTablet ? 14 : 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFFFA726),
+                    color: const Color(0xFFFFA726),
                   ),
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: isTablet ? 10 : 8),
+          SizedBox(height: isTablet ? 12 : 8),
 
           Text(
             'Progression',
             style: TextStyle(
-              fontSize: isTablet ? 13 : 12,
+              fontSize: isTablet ? 15 : 12,
               color: Colors.black54,
             ),
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: isTablet ? 8 : 5),
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: prog,
-              minHeight: isTablet ? 9 : 8,
+              minHeight: isTablet ? 11 : 8,
               backgroundColor: const Color(0xFFE0E0E0),
               valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFA726)),
             ),
           ),
 
-          SizedBox(height: isTablet ? 14 : 12),
+          SizedBox(height: isTablet ? 18 : 12),
 
           Text(
             'Réussite',
             style: TextStyle(
-              fontSize: isTablet ? 13 : 12,
+              fontSize: isTablet ? 15 : 12,
               color: Colors.black54,
             ),
           ),
-          SizedBox(height: isTablet ? 10 : 8),
+          SizedBox(height: isTablet ? 12 : 8),
           Row(
             children: [
               Expanded(
@@ -480,24 +452,24 @@ class _HomePageState extends State<HomePage> {
   Widget _trophy(int count, String label, Color color, {bool isTablet = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical:   isTablet ? 10 : 8,
+        vertical:   isTablet ? 14 : 8,
         horizontal: isTablet ? 6  : 6,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(isTablet ? 12 : 10),
+        borderRadius: BorderRadius.circular(isTablet ? 14 : 10),
         border: Border.all(color: const Color(0xFFE0E0E0), width: 1.2),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.emoji_events, color: color, size: isTablet ? 32 : 28),
-          SizedBox(height: isTablet ? 5 : 4),
+          Icon(Icons.emoji_events, color: color, size: isTablet ? 38 : 28),
+          SizedBox(height: isTablet ? 8 : 4),
           Text(
             '$count\n$label',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: isTablet ? 12 : 11,
+              fontSize: isTablet ? 14 : 11,
               color: Colors.black54,
               fontWeight: FontWeight.w500,
               height: 1.3,
