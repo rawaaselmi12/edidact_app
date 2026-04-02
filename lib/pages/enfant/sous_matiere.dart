@@ -54,22 +54,64 @@ class SousMatierePage extends StatelessWidget {
 
   const SousMatierePage({super.key, required this.matiereNom});
 
+  Widget _buildGrid(
+    List<SousMatiere> items, {
+    required int cols,
+    required bool isTablet,
+  }) {
+    final rows = <Widget>[];
+    for (int i = 0; i < items.length; i += cols) {
+      final rowItems = items.sublist(i, (i + cols).clamp(0, items.length));
+      rows.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(cols, (j) {
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left:   j == 0        ? 0 : 8,
+                  right:  j == cols - 1 ? 0 : 8,
+                  bottom: 16,
+                ),
+                child: j < rowItems.length
+                    ? _SousMatiereCard(
+                        sousMatiere: rowItems[j],
+                        isTablet: isTablet,
+                      )
+                    : const SizedBox(),
+              ),
+            );
+          }),
+        ),
+      );
+    }
+    return Column(children: rows);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isTablet    = MediaQuery.of(context).size.width >= 600;
+    final screenWidth = MediaQuery.of(context).size.width;
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isTablet    = screenWidth >= 600;
+
+   
+    final int cols = isLandscape ? 3 : (isTablet ? 2 : 1);
+
+    final double tableMenuFontSize = isTablet ? 15 : 13;
+    final double tableMenuIconSize = isTablet ? 22 : 18;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: isTablet ? 20 : 12,
-            vertical:   isTablet ? 16 : 10,
+            horizontal: isTablet ? 32 : 16,
+            vertical:   isTablet ? 20 : 12,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -80,78 +122,51 @@ class SousMatierePage extends StatelessWidget {
                   ),
                 ),
                 child: Icon(Icons.menu,
-                    size: isTablet ? 36 : 30, color: _kCyan),
+                    size: isTablet ? 40 : 34, color: _kCyan),
               ),
 
-              SizedBox(height: isTablet ? 24 : 20),
+              SizedBox(height: isTablet ? 24 : 16),
 
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
-                  horizontal: isTablet ? 18 : 14,
-                  vertical:   isTablet ? 16 : 10,
+                  horizontal: isTablet ? 20 : 16,
+                  vertical:   isTablet ? 14 : 10,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: Colors.grey[300]!),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.menu_book_rounded,
-                        color: Colors.red[400],
-                        size: isTablet ? 22 : 18),
+                        color: Colors.red[400], size: tableMenuIconSize),
                     const SizedBox(width: 8),
                     Text(
                       matiereNom,
                       style: TextStyle(
-                        fontSize: isTablet ? 17 : 14,
+                        fontSize: tableMenuFontSize,
+                        color: Colors.black87,
                         fontWeight: FontWeight.w600,
-                        color: _kCyan,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: isTablet ? 20 : 14),
+              SizedBox(height: isTablet ? 24 : 16),
 
-              LayoutBuilder(
-                builder: (context, constraints) {
-        // Paysage 
-                  if (isTablet && isLandscape) {
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _sousMatieres.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 4.2,
-                      ),
-                      itemBuilder: (context, index) {
-                        return _SousMatiereCard(
-                          sousMatiere: _sousMatieres[index],
-                          isTablet: true,
-                          isLandscape: true,
-                        );
-                      },
-                    );
-                  }
-
-                  return Column(
-                    children: _sousMatieres
-                        .map((sm) => _SousMatiereCard(
-                              sousMatiere: sm,
-                              isTablet: isTablet,
-                              isLandscape: false,
-                            ))
-                        .toList(),
-                  );
-                },
-              ),
+              cols == 1
+                  ? Column(
+                      children: _sousMatieres
+                          .map((sm) => _SousMatiereCard(
+                                sousMatiere: sm,
+                                isTablet: false,
+                              ))
+                          .toList(),
+                    )
+                  : _buildGrid(_sousMatieres, cols: cols, isTablet: isTablet),
             ],
           ),
         ),
@@ -163,32 +178,25 @@ class SousMatierePage extends StatelessWidget {
 class _SousMatiereCard extends StatelessWidget {
   final SousMatiere sousMatiere;
   final bool isTablet;
-  final bool isLandscape;
 
   const _SousMatiereCard({
     required this.sousMatiere,
     this.isTablet = false,
-    this.isLandscape = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final int percent = (sousMatiere.progress * 100).round();
+    final int percent  = (sousMatiere.progress * 100).round();
     final bool isYellow = sousMatiere.color == _kYellowLight;
 
-   
-    final double cardMarginBot  = isLandscape ? 0 : isTablet ? 22 : 16;
-    final double cardPaddingH   = isLandscape ? 6 : isTablet ? 20 : 14;
-    final double cardPaddingV   = isLandscape ? 4 : isTablet ? 18 : 12;
-    final double borderRadius   = isLandscape ? 8 : isTablet ? 16 : 12;
-    final double nameFontSize   = isLandscape ? 15 : isTablet ? 19 : 15.5;
-    final double descFontSize   = isLandscape ? 12 : isTablet ? 14 : 12;
-    final double labelFontSize  = isLandscape ? 12 : isTablet ? 14 : 12;
-    final double pctFontSize    = isLandscape ? 14 : isTablet ? 16 : 14;
-    final double barHeight      = isLandscape ? 6  : isTablet ? 9  : 7;
-    final double gapAfterName   = isLandscape ? 2  : isTablet ? 8  : 5;
-    final double gapAfterDesc   = isLandscape ? 4  : isTablet ? 12 : 8;
-    final double gapAfterLabel  = isLandscape ? 4  : isTablet ? 10 : 6;
+    final double cardPaddingV  = isTablet ? 18 : 14;
+    final double cardPaddingH  = isTablet ? 22 : 16;
+    final double cardMarginBot = isTablet ? 16 : 18;
+    final double nameFontSize  = isTablet ? 17 : 16;
+    final double descFontSize  = isTablet ? 13 : 11.5;
+    final double labelFontSize = isTablet ? 13 : 11;
+    final double barHeight     = isTablet ? 9  : 6;
+    final double borderRadius  = isTablet ? 18 : 14;
 
     return GestureDetector(
       onTap: () => Navigator.push(
@@ -227,35 +235,30 @@ class _SousMatiereCard extends StatelessWidget {
                 color: Colors.black87,
               ),
             ),
-            SizedBox(height: gapAfterName),
+            SizedBox(height: isTablet ? 6 : 6),
             Text(
               sousMatiere.description,
-              style: TextStyle(
-                fontSize: descFontSize,
-                color: Colors.grey[600],
-              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: descFontSize, color: Colors.grey[600]),
             ),
-            SizedBox(height: gapAfterDesc),
+            SizedBox(height: isTablet ? 12 : 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Progression:',
+                  'Progression',
                   style: TextStyle(
-                    fontSize: labelFontSize,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      fontSize: labelFontSize, fontWeight: FontWeight.w600),
                 ),
                 Text(
                   '$percent%',
                   style: TextStyle(
-                    fontSize: pctFontSize,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      fontSize: labelFontSize, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
-            SizedBox(height: gapAfterLabel),
+            SizedBox(height: isTablet ? 10 : 9),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(

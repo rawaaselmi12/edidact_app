@@ -42,6 +42,9 @@ class RewardPage extends StatelessWidget {
     final isLandscape = _isLandscape(context);
     final double hPad = isTablet ? 28 : 16;
 
+  
+    final int cols = isLandscape ? 3 : (isTablet ? 2 : 1);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -72,6 +75,7 @@ class RewardPage extends StatelessWidget {
 
               SizedBox(height: isTablet ? 18 : 12),
 
+              
               Text(
                 'Les récompenses',
                 style: TextStyle(
@@ -83,48 +87,53 @@ class RewardPage extends StatelessWidget {
 
               SizedBox(height: isTablet ? 14 : 8),
 
-              isLandscape
-                  ? _buildLandscapeLayout(context, isTablet)
-                  : _buildPortraitLayout(context, isTablet),
+              _buildAddButton(context, isTablet),
+
+              SizedBox(height: isTablet ? 14 : 8),
+
+              cols == 1
+                  ? Column(
+                      children: _rewards
+                          .map((r) => _RewardCard(reward: r, isTablet: false))
+                          .toList(),
+                    )
+                  : _buildGrid(_rewards, cols: cols, isTablet: isTablet),
             ],
           ),
         ),
       ),
     );
   }
-  Widget _buildLandscapeLayout(BuildContext context, bool isTablet) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.35,
-          child: _buildAddButton(context, isTablet, isLandscape: true),
-        ),
-        SizedBox(width: isTablet ? 18 : 12),
-        Expanded(
-          child: Column(
-            children: _rewards
-                .map((r) => _RewardCard(reward: r, isTablet: isTablet))
-                .toList(),
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildPortraitLayout(BuildContext context, bool isTablet) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildAddButton(context, isTablet),
-        SizedBox(height: isTablet ? 14 : 8),
-        Column(
-          children: _rewards
-              .map((r) => _RewardCard(reward: r, isTablet: isTablet))
-              .toList(),
+  Widget _buildGrid(
+    List<Reward> rewards, {
+    required int cols,
+    required bool isTablet,
+  }) {
+    final rows = <Widget>[];
+    for (int i = 0; i < rewards.length; i += cols) {
+      final rowItems = rewards.sublist(i, (i + cols).clamp(0, rewards.length));
+      rows.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(cols, (j) {
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left:   j == 0        ? 0 : 8,
+                  right:  j == cols - 1 ? 0 : 8,
+                  bottom: 16,
+                ),
+                child: j < rowItems.length
+                    ? _RewardCard(reward: rowItems[j], isTablet: isTablet)
+                    : const SizedBox(),
+              ),
+            );
+          }),
         ),
-      ],
-    );
+      );
+    }
+    return Column(children: rows);
   }
 
   Widget _buildHeaderCard(bool isTablet) {
@@ -170,7 +179,8 @@ class RewardPage extends StatelessWidget {
       ),
     );
   }
-  Widget _buildAddButton(BuildContext context, bool isTablet, {bool isLandscape = false}) {
+
+  Widget _buildAddButton(BuildContext context, bool isTablet) {
     return GestureDetector(
       onTap: () {
         showDialog(
@@ -182,24 +192,21 @@ class RewardPage extends StatelessWidget {
       child: Container(
         width: double.infinity,
         margin: EdgeInsets.symmetric(vertical: isTablet ? 6 : 8),
-        height: isLandscape ? 160 : null,
         padding: EdgeInsets.symmetric(vertical: isTablet ? 15 : 12),
         decoration: BoxDecoration(
           color: _kCyanLight,
           borderRadius: BorderRadius.circular(30),
         ),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, color: Colors.white, size: isLandscape ? 40 : (isTablet ? 24 : 20)),
-            SizedBox(height: isLandscape ? 12 : 0),
-            if (!isLandscape) const SizedBox(height: 0),
+            Icon(Icons.add, color: Colors.white, size: isTablet ? 24 : 20),
+            SizedBox(width: isTablet ? 10 : 8),
             Text(
-              isLandscape ? ' ajouter\nrécompense' : 'ajouter récompense',
-              textAlign: TextAlign.center,
+              'ajouter récompense',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: isLandscape ? 17 : (isTablet ? 17 : 15),
+                fontSize: isTablet ? 17 : 15,
                 fontWeight: FontWeight.w600,
               ),
             ),

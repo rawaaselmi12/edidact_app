@@ -15,24 +15,25 @@ class MesRecompensePage extends StatefulWidget {
 class _MesRecompensePageState extends State<MesRecompensePage> {
   int _selectedTab = 0;
 
-  bool _isTablet(BuildContext context) =>
-      MediaQuery.of(context).size.shortestSide >= _kTabletBreakpoint;
-
   @override
   Widget build(BuildContext context) {
-    final isTablet = _isTablet(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
-        child: _buildLayout(context, isTablet),
+        child: _buildLayout(context),
       ),
     );
   }
 
-  Widget _buildLayout(BuildContext context, bool isTablet) {
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-    final hPad = isLandscape && isTablet ? 40.0 : (isTablet ? 20.0 : 16.0);
+  Widget _buildLayout(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final bool isTablet = screenWidth >= _kTabletBreakpoint;
+    final double hPad = isTablet ? (isLandscape ? 40.0 : 20.0) : 16.0;
+
+   
+    
+    final int cols = isLandscape ? 3 : (screenWidth >= _kTabletBreakpoint ? 2 : 1);
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 12),
@@ -87,9 +88,9 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
           if (_selectedTab == 0)
             _buildCagnotte(isTablet: isTablet, isLandscape: isLandscape),
           if (_selectedTab == 1)
-            _buildDisponibles(isTablet: isTablet, isLandscape: isLandscape),
+            _buildDisponibles(cols: cols, isTablet: isTablet),
           if (_selectedTab == 2)
-            _buildUtilisees(isTablet: isTablet, isLandscape: isLandscape),
+            _buildUtilisees(cols: cols, isTablet: isTablet),
         ],
       ),
     );
@@ -112,8 +113,7 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
               color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.emoji_events_rounded,
-                color: Colors.white, size: 28),
+            child: const Icon(Icons.emoji_events_rounded, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 14),
           const Expanded(
@@ -141,7 +141,6 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
     );
   }
 
- 
   Widget _buildCagnotte({bool isTablet = false, bool isLandscape = false}) {
     final bool isTabletPortrait = isTablet && !isLandscape;
 
@@ -187,8 +186,7 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
                     strokeWidth: strokeWidth,
                     strokeCap: StrokeCap.round,
                     backgroundColor: const Color(0xFFB2EBF2),
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(_kCyan),
+                    valueColor: const AlwaysStoppedAnimation<Color>(_kCyan),
                   ),
                 ),
                 Image.asset(
@@ -202,15 +200,12 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
         ),
         SizedBox(height: midSpacing),
 
-        // Stats
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildStatItem('🏆', '5 Coupes',
-                emojiSize: emojiSize, fontSize: statFontSz),
+            _buildStatItem('🏆', '5 Coupes', emojiSize: emojiSize, fontSize: statFontSz),
             SizedBox(width: statSpacing),
-            _buildStatItem('🪙', '9 Coins',
-                emojiSize: emojiSize, fontSize: statFontSz),
+            _buildStatItem('🪙', '9 Coins',  emojiSize: emojiSize, fontSize: statFontSz),
           ],
         ),
         SizedBox(height: midSpacing),
@@ -248,12 +243,20 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
     );
   }
 
- 
-  Widget _buildDisponibles({bool isTablet = false, bool isLandscape = false}) {
+  Widget _buildDisponibles({required int cols, required bool isTablet}) {
     final List<Map<String, dynamic>> recompenses = [
       {'titre': 'récompense 1', 'categorie': 'jouet', 'coins': 4},
       {'titre': 'récompense 2', 'categorie': 'livre', 'coins': 6},
     ];
+
+    final cards = recompenses
+        .map((r) => _RecompenseCard(
+              titre: r['titre'],
+              categorie: r['categorie'],
+              coins: r['coins'],
+              isTablet: isTablet,
+            ))
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,58 +264,32 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
         const Center(
           child: Text(
             'Boutique des récompenses',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
         ),
         const SizedBox(height: 14),
-
-       
-        if (isTablet && isLandscape)
-          _buildTwoColumnGrid(
-            recompenses
-                .map((r) => _RecompenseCard(
-                      titre: r['titre'],
-                      categorie: r['categorie'],
-                      coins: r['coins'],
-                      isTablet: true,
-                    ))
-                .toList(),
-          )
-        else
-          Column(
-            children: recompenses
-                .map((r) => _RecompenseCard(
-                      titre: r['titre'],
-                      categorie: r['categorie'],
-                      coins: r['coins'],
-                      isTablet: false, 
-                    ))
-                .toList(),
-          ),
+        cols == 1
+            ? Column(children: cards)
+            : _buildGrid(cards, cols: cols),
       ],
     );
   }
 
- 
-  Widget _buildUtilisees({bool isTablet = false, bool isLandscape = false}) {
+  Widget _buildUtilisees({required int cols, required bool isTablet}) {
     final List<Map<String, dynamic>> utilisees = [
-      {
-        'titre': 'récompense 1',
-        'categorie': 'plat spécial',
-        'coins': 8,
-        'date': '24/01/2026',
-      },
-      {
-        'titre': 'récompense 2',
-        'categorie': 'sortie',
-        'coins': 10,
-        'date': '10/02/2026',
-      },
+      {'titre': 'récompense 1', 'categorie': 'plat spécial', 'coins': 8,  'date': '24/01/2026'},
+      {'titre': 'récompense 2', 'categorie': 'sortie',        'coins': 10, 'date': '10/02/2026'},
     ];
+
+    final cards = utilisees
+        .map((r) => _RecompenseUtiliseeCard(
+              titre: r['titre'],
+              categorie: r['categorie'],
+              coins: r['coins'],
+              date: r['date'],
+              isTablet: isTablet,
+            ))
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,11 +297,7 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
         const Center(
           child: Text(
             'Mes trophées',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
         ),
         const SizedBox(height: 4),
@@ -335,51 +308,35 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
           ),
         ),
         const SizedBox(height: 14),
-
-         if (isTablet && isLandscape)
-          _buildTwoColumnGrid(
-            utilisees
-                .map((r) => _RecompenseUtiliseeCard(
-                      titre: r['titre'],
-                      categorie: r['categorie'],
-                      coins: r['coins'],
-                      date: r['date'],
-                      isTablet: true,
-                    ))
-                .toList(),
-          )
-        else
-          Column(
-            children: utilisees
-                .map((r) => _RecompenseUtiliseeCard(
-                      titre: r['titre'],
-                      categorie: r['categorie'],
-                      coins: r['coins'],
-                      date: r['date'],
-                      isTablet: false, 
-                    ))
-                .toList(),
-          ),
+        cols == 1
+            ? Column(children: cards)
+            : _buildGrid(cards, cols: cols),
       ],
     );
   }
 
-//paysage
-  Widget _buildTwoColumnGrid(List<Widget> cards) {
+  Widget _buildGrid(List<Widget> cards, {required int cols}) {
     final rows = <Widget>[];
-    for (var i = 0; i < cards.length; i += 2) {
+    for (int i = 0; i < cards.length; i += cols) {
+      final rowItems = cards.sublist(i, (i + cols).clamp(0, cards.length));
       rows.add(
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: cards[i]),
-              const SizedBox(width: 12),
-              if (i + 1 < cards.length)
-                Expanded(child: cards[i + 1])
-              else
-                const Expanded(child: SizedBox()),
-            ],
+            children: List.generate(cols, (j) {
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left:   j == 0        ? 0 : 6,
+                    right:  j == cols - 1 ? 0 : 6,
+                    bottom: 12,
+                  ),
+                  child: j < rowItems.length
+                      ? rowItems[j]
+                      : const SizedBox(),
+                ),
+              );
+            }),
           ),
         ),
       );
@@ -391,8 +348,8 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
 class _RecompenseCard extends StatelessWidget {
   final String titre;
   final String categorie;
-  final int coins;
-  final bool isTablet;
+  final int    coins;
+  final bool   isTablet;
 
   const _RecompenseCard({
     required this.titre,
@@ -414,13 +371,17 @@ class _RecompenseCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(14)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
             child: Image.asset(
               'assets/images/reward_illustration.png.png',
               width: double.infinity,
               height: isTablet ? 140 : 160,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: isTablet ? 140 : 160,
+                color: _kCyan.withOpacity(0.2),
+                child: const Icon(Icons.image_not_supported, color: _kCyan, size: 40),
+              ),
             ),
           ),
           Padding(
@@ -464,8 +425,7 @@ class _RecompenseCard extends StatelessWidget {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                          borderRadius: BorderRadius.circular(10)),
                       elevation: 0,
                     ),
                     child: Text(
@@ -489,9 +449,9 @@ class _RecompenseCard extends StatelessWidget {
 class _RecompenseUtiliseeCard extends StatelessWidget {
   final String titre;
   final String categorie;
-  final int coins;
+  final int    coins;
   final String date;
-  final bool isTablet;
+  final bool   isTablet;
 
   const _RecompenseUtiliseeCard({
     required this.titre,
@@ -514,13 +474,17 @@ class _RecompenseUtiliseeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(14)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
             child: Image.asset(
               'assets/images/reward_illustration.png.png',
               width: double.infinity,
               height: isTablet ? 140 : 160,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: isTablet ? 140 : 160,
+                color: _kCyan.withOpacity(0.2),
+                child: const Icon(Icons.image_not_supported, color: _kCyan, size: 40),
+              ),
             ),
           ),
           Padding(
@@ -565,8 +529,7 @@ class _RecompenseUtiliseeCard extends StatelessWidget {
                       disabledForegroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                          borderRadius: BorderRadius.circular(10)),
                       elevation: 0,
                     ),
                   ),
@@ -637,10 +600,10 @@ class _CoinsBadge extends StatelessWidget {
 }
 
 class _TabButton extends StatelessWidget {
-  final String label;
-  final bool selected;
+  final String       label;
+  final bool         selected;
   final VoidCallback onTap;
-  final bool fullWidth;
+  final bool         fullWidth;
 
   const _TabButton({
     required this.label,

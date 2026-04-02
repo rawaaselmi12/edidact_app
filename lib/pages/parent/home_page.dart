@@ -19,12 +19,12 @@ class _HomePageState extends State<HomePage> {
       'coupes': 5,
       'matieres': 6,
       'subjects': [
-        {'name': 'Français', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
-        {'name': 'Science', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
-        {'name': 'Anglais', 'progression': 0.0, 'or': 0, 'argent':0, 'bronze': 0},
-        {'name': 'Maths', 'progression': 0.5, 'or': 0, 'argent': 0, 'bronze': 0},
-        {'name': 'Culture Générale', 'progression': 0.0, 'or': 0, 'argent': 1, 'bronze': 0},
-        {'name': 'Allemand', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Français',         'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Science',          'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Anglais',          'progression': 0.0,  'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Maths',            'progression': 0.5,  'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Culture Générale', 'progression': 0.0,  'or': 0, 'argent': 1, 'bronze': 0},
+        {'name': 'Allemand',         'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
       ],
     },
     {
@@ -34,18 +34,21 @@ class _HomePageState extends State<HomePage> {
       'coupes': 2,
       'matieres': 6,
       'subjects': [
-        {'name': 'Français', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
-        {'name': 'Science', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
-        {'name': 'Anglais', 'progression': 0.0, 'or': 0, 'argent':0, 'bronze': 0},
-        {'name': 'Maths', 'progression': 0.5, 'or': 0, 'argent': 0, 'bronze': 0},
-        {'name': 'Culture Générale', 'progression': 0.0, 'or': 0, 'argent': 1, 'bronze': 0},
-        {'name': 'Allemand', 'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Français',         'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Science',          'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Anglais',          'progression': 0.0,  'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Maths',            'progression': 0.5,  'or': 0, 'argent': 0, 'bronze': 0},
+        {'name': 'Culture Générale', 'progression': 0.0,  'or': 0, 'argent': 1, 'bronze': 0},
+        {'name': 'Allemand',         'progression': 0.10, 'or': 0, 'argent': 0, 'bronze': 0},
       ],
     },
   ];
 
-  bool _isTablet(BuildContext context) =>
-      MediaQuery.of(context).size.shortestSide >= 600;
+  bool _isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    // longestSide couvre portrait ET paysage tablette
+    return size.longestSide >= 900 || size.shortestSide >= 600;
+  }
 
   bool _isLandscape(BuildContext context) =>
       MediaQuery.of(context).orientation == Orientation.landscape;
@@ -56,6 +59,10 @@ class _HomePageState extends State<HomePage> {
     final isTablet    = _isTablet(context);
     final isLandscape = _isLandscape(context);
     final double hPad = isTablet ? 28 : 16;
+
+  
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final int cols = isLandscape ? 3 : (screenWidth >= 600 ? 2 : 1);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -102,7 +109,6 @@ class _HomePageState extends State<HomePage> {
 
               SizedBox(height: isTablet ? 14 : 10),
 
-              
               isTablet && isLandscape
                   ? _buildSummaryRow4(child)
                   : _buildSummaryCardMobile(child, isTablet: isTablet),
@@ -120,21 +126,50 @@ class _HomePageState extends State<HomePage> {
 
               SizedBox(height: isTablet ? 14 : 12),
 
-              
-              isTablet && isLandscape
-                  ? _buildSubjectsGrid2Col(
-                      child['subjects'] as List<Map<String, dynamic>>,
-                    )
-                  : Column(
-                      children: (child['subjects'] as List<Map<String, dynamic>>)
-                          .map((s) => _subjectCard(s, isTablet: isTablet))
-                          .toList(),
-                    ),
+              _buildSubjectsGrid(
+                child['subjects'] as List<Map<String, dynamic>>,
+                cols: cols,
+                isTablet: isTablet,
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildSubjectsGrid(
+    List<Map<String, dynamic>> subjects, {
+    required int cols,
+    required bool isTablet,
+  }) {
+    final rows = <Widget>[];
+    for (int i = 0; i < subjects.length; i += cols) {
+      final rowItems = subjects.sublist(
+        i,
+        (i + cols).clamp(0, subjects.length),
+      );
+      rows.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(cols, (j) {
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left:   j == 0        ? 0 : 8,
+                  right:  j == cols - 1 ? 0 : 8,
+                  bottom: 16,
+                ),
+                child: j < rowItems.length
+                    ? _subjectCard(rowItems[j], isTablet: isTablet)
+                    : const SizedBox(),
+              ),
+            );
+          }),
+        ),
+      );
+    }
+    return Column(children: rows);
   }
 
   Widget _buildHeaderCard(bool isTablet) {
@@ -189,7 +224,9 @@ class _HomePageState extends State<HomePage> {
           child: GestureDetector(
             onTap: () => setState(() => _selectedChild = index),
             child: Container(
-              margin: EdgeInsets.only(right: index == 0 ? (isTablet ? 12 : 8) : 0),
+              margin: EdgeInsets.only(
+                right: index == 0 ? (isTablet ? 12 : 8) : 0,
+              ),
               padding: EdgeInsets.symmetric(vertical: isTablet ? 15 : 10),
               decoration: BoxDecoration(
                 color: isSelected ? const Color(0xFF00BCD4) : Colors.white,
@@ -212,8 +249,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  
-  Widget _buildSummaryCardMobile(Map<String, dynamic> child, {bool isTablet = false}) {
+  Widget _buildSummaryCardMobile(
+    Map<String, dynamic> child, {
+    bool isTablet = false,
+  }) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -226,13 +265,13 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Column(
         children: [
-          _summaryRow('🪙', '${child['coins']}',         'coins totaux',          isTablet: isTablet),
+          _summaryRow('🪙', '${child['coins']}',        'coins totaux',        isTablet: isTablet),
           SizedBox(height: isTablet ? 12 : 6),
-          _summaryRow('📈', '${child['progression']}%',  'progression moyenne',   isTablet: isTablet),
+          _summaryRow('📈', '${child['progression']}%', 'progression moyenne', isTablet: isTablet),
           SizedBox(height: isTablet ? 12 : 6),
-          _summaryRow('🏆', '${child['coupes']}',        'coupes gagnées',        isTablet: isTablet),
+          _summaryRow('🏆', '${child['coupes']}',       'coupes gagnées',      isTablet: isTablet),
           SizedBox(height: isTablet ? 12 : 6),
-          _summaryRow('📚', '${child['matieres']}',      'matières étudiées',     isTablet: isTablet),
+          _summaryRow('📚', '${child['matieres']}',     'matières étudiées',   isTablet: isTablet),
         ],
       ),
     );
@@ -240,12 +279,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildSummaryRow4(Map<String, dynamic> child) {
     final stats = [
-      {'emoji': '🪙', 'value': '${child['coins']}',         'label': 'coins totaux'},
-      {'emoji': '📈', 'value': '${child['progression']}%',  'label': 'progression moyenne'},
-      {'emoji': '🏆', 'value': '${child['coupes']}',        'label': 'coupes gagnées'},
-      {'emoji': '📚', 'value': '${child['matieres']}',      'label': 'matières étudiées'},
+      {'emoji': '🪙', 'value': '${child['coins']}',        'label': 'coins totaux'},
+      {'emoji': '📈', 'value': '${child['progression']}%', 'label': 'progression moyenne'},
+      {'emoji': '🏆', 'value': '${child['coupes']}',       'label': 'coupes gagnées'},
+      {'emoji': '📚', 'value': '${child['matieres']}',     'label': 'matières étudiées'},
     ];
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -289,38 +327,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSubjectsGrid2Col(List<Map<String, dynamic>> subjects) {
-    final rows = <Widget>[];
-    for (int i = 0; i < subjects.length; i += 2) {
-      final left  = subjects[i];
-      final right = i + 1 < subjects.length ? subjects[i + 1] : null;
-      rows.add(
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8, bottom: 14),
-                child: _subjectCard(left, isTablet: true),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, bottom: 14),
-                child: right != null
-                    ? _subjectCard(right, isTablet: true)
-                    : const SizedBox(),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return Column(children: rows);
-  }
-
-  
-  Widget _summaryRow(String emoji, String value, String label, {bool isTablet = false}) {
+  Widget _summaryRow(
+    String emoji,
+    String value,
+    String label, {
+    bool isTablet = false,
+  }) {
     return Row(
       children: [
         SizedBox(
@@ -370,12 +382,15 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                subject['name'],
-                style: TextStyle(
-                  fontSize: isTablet ? 19 : 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              Expanded(
+                child: Text(
+                  subject['name'],
+                  style: TextStyle(
+                    fontSize: isTablet ? 19 : 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
@@ -432,15 +447,24 @@ class _HomePageState extends State<HomePage> {
           Row(
             children: [
               Expanded(
-                child: _trophy(subject['or'],     'Or',     const Color(0xFFFFD700), isTablet: isTablet),
+                child: _trophy(
+                  subject['or'], 'Or', const Color(0xFFFFD700),
+                  isTablet: isTablet,
+                ),
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: _trophy(subject['argent'], 'Argent', const Color(0xFFB0BEC5), isTablet: isTablet),
+                child: _trophy(
+                  subject['argent'], 'Argent', const Color(0xFFB0BEC5),
+                  isTablet: isTablet,
+                ),
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: _trophy(subject['bronze'], 'Bronze', const Color(0xFFCD7F32), isTablet: isTablet),
+                child: _trophy(
+                  subject['bronze'], 'Bronze', const Color(0xFFCD7F32),
+                  isTablet: isTablet,
+                ),
               ),
             ],
           ),

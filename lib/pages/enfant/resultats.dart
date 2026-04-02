@@ -20,11 +20,11 @@ class _ResultatsPageState extends State<ResultatsPage> {
     'coupes': 15,
     'matieres': 6,
     'subjects': [
-      {'name': 'Français',         'progression': 0.10, 'coins': 0, 'or': 0, 'argent': 0, 'bronze': 0},
-      {'name': 'Science',          'progression': 0.40, 'coins': 4, 'or': 4, 'argent': 0, 'bronze': 0},
       {'name': 'Anglais',          'progression': 0.70, 'coins': 2, 'or': 2, 'argent': 1, 'bronze': 0},
       {'name': 'Maths',            'progression': 0.55, 'coins': 1, 'or': 1, 'argent': 3, 'bronze': 1},
+      {'name': 'Français',         'progression': 0.10, 'coins': 0, 'or': 0, 'argent': 0, 'bronze': 0},
       {'name': 'Culture Générale', 'progression': 0.30, 'coins': 0, 'or': 0, 'argent': 1, 'bronze': 2},
+      {'name': 'Science',          'progression': 0.40, 'coins': 4, 'or': 4, 'argent': 0, 'bronze': 0},
       {'name': 'Allemand',         'progression': 0.20, 'coins': 0, 'or': 0, 'argent': 0, 'bronze': 1},
     ],
   };
@@ -52,15 +52,14 @@ class _ResultatsPageState extends State<ResultatsPage> {
     );
   }
 
-  
+//portrat
   Widget _buildPortraitLayout(BuildContext context, {required bool isTablet}) {
-    // Tablette portrait → un peu plus grand que mobile, même structure colonne simple
-    final double titleSize   = isTablet ? 20 : 17;
-    final double bodySize    = isTablet ? 15 : 13;
-    final double avatarR     = isTablet ? 34 : 30;
-    final double hPad        = isTablet ? 20 : 16;
-    final double cardRadius  = isTablet ? 16 : 14;
-    final double spacing     = isTablet ? 22 : 18;
+    final double titleSize  = isTablet ? 20 : 17;
+    final double bodySize   = isTablet ? 15 : 13;
+    final double avatarR    = isTablet ? 34 : 30;
+    final double hPad       = isTablet ? 20 : 16;
+    final double cardRadius = isTablet ? 16 : 14;
+    final double spacing    = isTablet ? 22 : 18;
 
     final subjects = _child['subjects'] as List<Map<String, dynamic>>;
 
@@ -75,20 +74,12 @@ class _ResultatsPageState extends State<ResultatsPage> {
           ),
           SizedBox(height: spacing),
 
-          _headerCard(
-            avatarRadius: avatarR,
-            cardRadius: cardRadius,
-            bodySize: bodySize,
-          ),
+          _headerCard(avatarRadius: avatarR, cardRadius: cardRadius, bodySize: bodySize),
           SizedBox(height: spacing),
 
           Text(
             'Mes résultats totaux',
-            style: TextStyle(
-              fontSize: titleSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
           SizedBox(height: isTablet ? 12 : 10),
 
@@ -97,25 +88,23 @@ class _ResultatsPageState extends State<ResultatsPage> {
 
           Text(
             'Détails par matière',
-            style: TextStyle(
-              fontSize: titleSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
           SizedBox(height: isTablet ? 14 : 12),
 
-          Column(
-            children: subjects
-                .map((s) => _subjectCard(s, isTablet: isTablet))
-                .toList(),
-          ),
+          // ── Grille : mobile = 1 col, tablette portrait = 2 cols ──
+          isTablet
+              ? _buildSubjectsGrid2Col(subjects)
+              : Column(
+                  children: subjects
+                      .map((s) => _subjectCard(s, isTablet: false))
+                      .toList(),
+                ),
         ],
       ),
     );
   }
 
- //tablet
   Widget _buildLandscapeLayout(BuildContext context) {
     final subjects = _child['subjects'] as List<Map<String, dynamic>>;
 
@@ -133,21 +122,14 @@ class _ResultatsPageState extends State<ResultatsPage> {
           const SizedBox(height: 18),
           const Text(
             'Mes résultats totaux',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
           const SizedBox(height: 10),
 
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              color: _kCyanBg,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: _kCyanBg, borderRadius: BorderRadius.circular(16)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -164,22 +146,16 @@ class _ResultatsPageState extends State<ResultatsPage> {
           const SizedBox(height: 18),
           const Text(
             'Détails par matière',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
           const SizedBox(height: 14),
 
-          // Grille 2 colonnes
-          _buildSubjectsGrid2Col(subjects),
+          _buildSubjectsGrid3Col(subjects),
         ],
       ),
     );
   }
 
- //paysage
   Widget _buildSubjectsGrid2Col(List<Map<String, dynamic>> subjects) {
     final rows = <Widget>[];
     for (int i = 0; i < subjects.length; i += 2) {
@@ -210,7 +186,41 @@ class _ResultatsPageState extends State<ResultatsPage> {
     return Column(children: rows);
   }
 
- 
+  Widget _buildSubjectsGrid3Col(List<Map<String, dynamic>> subjects) {
+    final rows = <Widget>[];
+    for (int i = 0; i < subjects.length; i += 3) {
+      final a = subjects[i];
+      final b = i + 1 < subjects.length ? subjects[i + 1] : null;
+      final c = i + 2 < subjects.length ? subjects[i + 2] : null;
+      rows.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 6, bottom: 14),
+                child: _subjectCard(a, isTablet: true),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0).copyWith(bottom: 14),
+                child: b != null ? _subjectCard(b, isTablet: true) : const SizedBox(),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 6, bottom: 14),
+                child: c != null ? _subjectCard(c, isTablet: true) : const SizedBox(),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(children: rows);
+  }
+
   void _openMenu(BuildContext context) => Navigator.push(
         context,
         PageRouteBuilder(
@@ -228,10 +238,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: _kPurple,
-        borderRadius: BorderRadius.circular(cardRadius),
-      ),
+      decoration: BoxDecoration(color: _kPurple, borderRadius: BorderRadius.circular(cardRadius)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -247,11 +254,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
               children: [
                 Text(
                   'Bonjour ${_child['name']}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: bodySize + 4,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: bodySize + 4, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -277,10 +280,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
         horizontal: isTablet ? 18 : 14,
         vertical:   isTablet ? 14 : 10,
       ),
-      decoration: BoxDecoration(
-        color: _kCyanBg,
-        borderRadius: BorderRadius.circular(cardRadius),
-      ),
+      decoration: BoxDecoration(color: _kCyanBg, borderRadius: BorderRadius.circular(cardRadius)),
       child: Column(
         children: [
           _summaryRow('🪙', '${_child['coins']}',        'coins totaux',        bodySize, isTablet),
@@ -295,32 +295,19 @@ class _ResultatsPageState extends State<ResultatsPage> {
     );
   }
 
-  Widget _summaryRow(
-      String emoji, String value, String label, double fontSize, bool isTablet) {
+  Widget _summaryRow(String emoji, String value, String label, double fontSize, bool isTablet) {
     return Row(
       children: [
-        SizedBox(
-          width: isTablet ? 32 : 28,
-          child: Text(emoji, style: TextStyle(fontSize: fontSize + 4)),
-        ),
+        SizedBox(width: isTablet ? 32 : 28, child: Text(emoji, style: TextStyle(fontSize: fontSize + 4))),
         SizedBox(width: isTablet ? 14 : 12),
         SizedBox(
           width: isTablet ? 56 : 52,
-          child: Text(
-            value,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: fontSize,
-              color: Colors.black87,
-            ),
-          ),
+          child: Text(value,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize, color: Colors.black87)),
         ),
         SizedBox(width: isTablet ? 14 : 12),
-        Text(
-          label,
-          style: TextStyle(fontSize: fontSize - 1, color: Colors.black54),
-        ),
+        Text(label, style: TextStyle(fontSize: fontSize - 1, color: Colors.black54)),
       ],
     );
   }
@@ -331,27 +318,20 @@ class _ResultatsPageState extends State<ResultatsPage> {
       children: [
         Text(emoji, style: const TextStyle(fontSize: 22)),
         const SizedBox(height: 4),
-        Text(value,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Colors.black87)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
         const SizedBox(height: 2),
-        Text(label,
-            style: const TextStyle(fontSize: 11, color: Colors.black54)),
+        Text(label, style: const TextStyle(fontSize: 11, color: Colors.black54)),
       ],
     );
   }
 
-  Widget _dividerV() =>
-      Container(width: 1, height: 48, color: Colors.black12);
+  Widget _dividerV() => Container(width: 1, height: 48, color: Colors.black12);
 
   Widget _subjectCard(Map<String, dynamic> subject, {required bool isTablet}) {
     final double prog = subject['progression'];
     final int pct     = (prog * 100).round();
 
     return Container(
-      // Margin bottom : tablette portrait légèrement plus que mobile
       margin: EdgeInsets.only(bottom: isTablet ? 18 : 14),
       padding: EdgeInsets.all(isTablet ? 16 : 14),
       decoration: BoxDecoration(
@@ -366,42 +346,28 @@ class _ResultatsPageState extends State<ResultatsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  subject['name'],
-                  style: TextStyle(
-                    fontSize: isTablet ? 17 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
+                child: Text(subject['name'],
+                    style: TextStyle(
+                        fontSize: isTablet ? 17 : 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87)),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3E0),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '$pct%',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFFFA726),
-                  ),
-                ),
+                    color: const Color(0xFFFFF3E0),
+                    borderRadius: BorderRadius.circular(20)),
+                child: Text('$pct%',
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFFA726))),
               ),
             ],
           ),
-
           SizedBox(height: isTablet ? 10 : 8),
-
-          Text(
-            'Progression',
-            style: TextStyle(
-              fontSize: isTablet ? 13 : 12,
-              color: Colors.black54,
-            ),
-          ),
+          Text('Progression',
+              style: TextStyle(fontSize: isTablet ? 13 : 12, color: Colors.black54)),
           const SizedBox(height: 5),
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
@@ -409,37 +375,20 @@ class _ResultatsPageState extends State<ResultatsPage> {
               value: prog,
               minHeight: isTablet ? 9 : 8,
               backgroundColor: const Color(0xFFE0E0E0),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(Color(0xFFFFA726)),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFA726)),
             ),
           ),
-
           SizedBox(height: isTablet ? 14 : 12),
-
-          Text(
-            'Réussite',
-            style: TextStyle(
-              fontSize: isTablet ? 13 : 12,
-              color: Colors.black54,
-            ),
-          ),
+          Text('Réussite',
+              style: TextStyle(fontSize: isTablet ? 13 : 12, color: Colors.black54)),
           SizedBox(height: isTablet ? 10 : 8),
           Row(
             children: [
-              Expanded(
-                child: _trophy(subject['or'] ?? 0,     'Or',
-                    const Color(0xFFFFD700), isTablet: isTablet),
-              ),
+              Expanded(child: _trophy(subject['or'] ?? 0,     'Or',     const Color(0xFFFFD700), isTablet: isTablet)),
               const SizedBox(width: 6),
-              Expanded(
-                child: _trophy(subject['argent'] ?? 0, 'Argent',
-                    const Color(0xFFB0BEC5), isTablet: isTablet),
-              ),
+              Expanded(child: _trophy(subject['argent'] ?? 0, 'Argent', const Color(0xFFB0BEC5), isTablet: isTablet)),
               const SizedBox(width: 6),
-              Expanded(
-                child: _trophy(subject['bronze'] ?? 0, 'Bronze',
-                    const Color(0xFFCD7F32), isTablet: isTablet),
-              ),
+              Expanded(child: _trophy(subject['bronze'] ?? 0, 'Bronze', const Color(0xFFCD7F32), isTablet: isTablet)),
             ],
           ),
         ],
@@ -447,13 +396,9 @@ class _ResultatsPageState extends State<ResultatsPage> {
     );
   }
 
-  Widget _trophy(int count, String label, Color color,
-      {bool isTablet = false}) {
+  Widget _trophy(int count, String label, Color color, {bool isTablet = false}) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        vertical:   isTablet ? 10 : 8,
-        horizontal: 6,
-      ),
+      padding: EdgeInsets.symmetric(vertical: isTablet ? 10 : 8, horizontal: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(isTablet ? 12 : 10),
@@ -464,16 +409,13 @@ class _ResultatsPageState extends State<ResultatsPage> {
         children: [
           Icon(Icons.emoji_events, color: color, size: isTablet ? 32 : 28),
           SizedBox(height: isTablet ? 5 : 4),
-          Text(
-            '$count\n$label',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: isTablet ? 12 : 11,
-              color: Colors.black54,
-              fontWeight: FontWeight.w500,
-              height: 1.3,
-            ),
-          ),
+          Text('$count\n$label',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: isTablet ? 12 : 11,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3)),
         ],
       ),
     );

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:edidact_app/widgets/menu_barre_enfant.dart';
-import 'package:edidact_app/pages/enfant/lesson_page.dart';
+import 'package:edidact_app/pages/enfant/exercice_page.dart';
 
 const _kCyan        = Color(0xFF00BCD4);
 const _kYellow      = Color(0xFFFCB317);
 const _kYellowLight = Color(0xFFFFF0C2);
 const _kBlueLight   = Color(0xFFB2EBF2);
 
-class Lesson {
+class Exercise {
   final String name;
   final String description;
   final double progress;
   final Color color;
 
-  const Lesson({
+  const Exercise({
     required this.name,
     required this.description,
     required this.progress,
@@ -21,36 +21,38 @@ class Lesson {
   });
 }
 
-const List<Lesson> _lessons = [
-  Lesson(
-    name: 'Lesson 1',
-    description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
+const List<Exercise> _exercises = [
+  Exercise(
+    name: 'Exercice 1',
+    description: 'Découvrez cet exercice passionnant avec nos activités adaptées',
     progress: 0.0,
     color: _kYellowLight,
   ),
-  Lesson(
-    name: 'Lesson 2',
-    description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
+  Exercise(
+    name: 'Exercice 2',
+    description: 'Découvrez cet exercice passionnant avec nos activités adaptées',
     progress: 0.0,
     color: _kBlueLight,
   ),
-  Lesson(
-    name: 'Lesson 3',
-    description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
+  Exercise(
+    name: 'Exercice 3',
+    description: 'Découvrez cet exercice passionnant avec nos activités adaptées',
     progress: 0.0,
     color: _kYellowLight,
   ),
 ];
 
-class ContenuSousMatierePage extends StatelessWidget {
-  final String sousMatiereNom;
+class LessonPage extends StatelessWidget {
+  final String titre;
+  final String description;
 
-  const ContenuSousMatierePage({
+  const LessonPage({
     super.key,
-    required this.sousMatiereNom,
+    required this.titre,
+    required this.description,
   });
 
-  Widget _buildGrid(List<Lesson> items, {required int cols, required bool isTablet}) {
+  Widget _buildGrid(List<Exercise> items, {required int cols, required bool isTablet}) {
     final rows = <Widget>[];
     for (int i = 0; i < items.length; i += cols) {
       final rowItems = items.sublist(i, (i + cols).clamp(0, items.length));
@@ -66,7 +68,7 @@ class ContenuSousMatierePage extends StatelessWidget {
                   bottom: 16,
                 ),
                 child: j < rowItems.length
-                    ? _LessonCard(lesson: rowItems[j], isTablet: isTablet)
+                    ? _ExerciseCard(exercise: rowItems[j], isTablet: isTablet)
                     : const SizedBox(),
               ),
             );
@@ -83,10 +85,10 @@ class ContenuSousMatierePage extends StatelessWidget {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet    = screenWidth >= 600;
 
-    
+    // Mobile portrait  → 1 col
+    // Tablette portrait → 2 cols
+    // Paysage (tous)   → 3 cols
     final int cols = isLandscape ? 3 : (isTablet ? 2 : 1);
-
-    final double tableMenuFontSize = isTablet ? 18 : 16;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
@@ -132,12 +134,15 @@ class ContenuSousMatierePage extends StatelessWidget {
                         color: Colors.red[400],
                         size: isTablet ? 22 : 18),
                     const SizedBox(width: 10),
-                    Text(
-                      sousMatiereNom,
-                      style: TextStyle(
-                        fontSize: tableMenuFontSize,
-                        fontWeight: FontWeight.w600,
-                        color: _kCyan,
+                    Expanded(
+                      child: Text(
+                        titre,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: isTablet ? 18 : 16,
+                          fontWeight: FontWeight.w600,
+                          color: _kCyan,
+                        ),
                       ),
                     ),
                   ],
@@ -148,11 +153,11 @@ class ContenuSousMatierePage extends StatelessWidget {
 
               cols == 1
                   ? Column(
-                      children: _lessons
-                          .map((l) => _LessonCard(lesson: l, isTablet: false))
+                      children: _exercises
+                          .map((e) => _ExerciseCard(exercise: e, isTablet: false))
                           .toList(),
                     )
-                  : _buildGrid(_lessons, cols: cols, isTablet: isTablet),
+                  : _buildGrid(_exercises, cols: cols, isTablet: isTablet),
             ],
           ),
         ),
@@ -161,19 +166,19 @@ class ContenuSousMatierePage extends StatelessWidget {
   }
 }
 
-class _LessonCard extends StatelessWidget {
-  final Lesson lesson;
-  final bool   isTablet;
+class _ExerciseCard extends StatelessWidget {
+  final Exercise exercise;
+  final bool     isTablet;
 
-  const _LessonCard({
-    required this.lesson,
+  const _ExerciseCard({
+    required this.exercise,
     this.isTablet = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final int percent   = (lesson.progress * 100).round();
-    final bool isYellow = lesson.color == _kYellowLight;
+    final int percent   = (exercise.progress * 100).round();
+    final bool isYellow = exercise.color == _kYellowLight;
 
     final double cardPaddingV  = isTablet ? 18 : 14;
     final double cardPaddingH  = isTablet ? 22 : 16;
@@ -188,10 +193,7 @@ class _LessonCard extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => LessonPage(
-            titre: lesson.name,
-            description: lesson.description,
-          ),
+          builder: (_) => ExercicePage(exerciceNom: exercise.name),
         ),
       ),
       child: Container(
@@ -201,7 +203,7 @@ class _LessonCard extends StatelessWidget {
           vertical:   cardPaddingV,
         ),
         decoration: BoxDecoration(
-          color: lesson.color,
+          color: exercise.color,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: Column(
@@ -209,7 +211,7 @@ class _LessonCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              lesson.name,
+              exercise.name,
               style: TextStyle(
                 fontSize: nameFontSize,
                 fontWeight: FontWeight.bold,
@@ -218,7 +220,7 @@ class _LessonCard extends StatelessWidget {
             ),
             SizedBox(height: isTablet ? 6 : 5),
             Text(
-              lesson.description,
+              exercise.description,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: descFontSize, color: Colors.grey[700]),
@@ -243,7 +245,7 @@ class _LessonCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
-                value: lesson.progress,
+                value: exercise.progress,
                 minHeight: barHeight,
                 backgroundColor: Colors.white.withOpacity(0.6),
                 valueColor: AlwaysStoppedAnimation<Color>(

@@ -28,16 +28,16 @@ class MenuBarre extends StatelessWidget {
         : (isLandscape ? 65 : 72);
 
     final double titleFontSize = isTablet
-        ? (isLandscape ? 21 : 28)
-        : (isLandscape ? 18 : 20);
+        ? (isLandscape ? 21 : 21)
+        : (isLandscape ? 18 : 18);
 
     final double iconSize = isTablet
-        ? (isLandscape ? 28 : 38)
-        : (isLandscape ? 24 : 28); 
+        ? (isLandscape ? 28 : 28)
+        : (isLandscape ? 24 : 24);
 
     final double itemFontSize = isTablet
-        ? (isLandscape ? 18 : 24)
-        : (isLandscape ? 16 : 18); 
+        ? (isLandscape ? 19 : 19)
+        : (isLandscape ? 19 : 19);
 
     final double hPad = isTablet
         ? (isLandscape ? 30 : 38)
@@ -60,8 +60,8 @@ class MenuBarre extends StatelessWidget {
         : (isLandscape ? 24 : 28);
 
     final double iconLabelGap = isTablet
-        ? (isLandscape ? 18 : 26)
-        : (isLandscape ? 16 : 20); 
+        ? (isLandscape ? 19 : 19)
+        : (isLandscape ? 19 : 19);
 
     return Scaffold(
       backgroundColor: Colors.transparent,

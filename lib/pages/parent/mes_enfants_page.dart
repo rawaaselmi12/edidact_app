@@ -38,9 +38,6 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Child> _filtered = _children;
 
-  bool _isTablet(BuildContext context) =>
-      MediaQuery.of(context).size.shortestSide >= 600;
-
   bool _isLandscape(BuildContext context) =>
       MediaQuery.of(context).orientation == Orientation.landscape;
 
@@ -62,9 +59,13 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet    = _isTablet(context);
-    final isLandscape = _isLandscape(context);
-    final double hPad = isTablet ? 24 : 16;
+    final isLandscape  = _isLandscape(context);
+    final screenWidth  = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth >= 600;
+    final double hPad  = isTablet ? 24 : 16;
+
+  
+    final int cols = isLandscape ? 3 : (screenWidth >= 600 ? 2 : 1);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
@@ -92,20 +93,53 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
 
               SizedBox(height: isTablet ? 18 : 14),
 
-              isLandscape && isTablet
+           
+              isLandscape
                   ? _buildSearchAndButtonRow(context, isTablet)
                   : _buildSearchAndButtonColumn(context, isTablet),
 
               SizedBox(height: isTablet ? 24 : 20),
 
-              isLandscape && isTablet
-                  ? _buildChildrenGrid()
-                  : _buildChildrenList(isTablet),
+              
+              cols == 1
+                  ? Column(
+                      children: _filtered
+                          .map((c) => _ChildCard(child: c, isTablet: false))
+                          .toList(),
+                    )
+                  : _buildGrid(_filtered, cols: cols, isTablet: isTablet),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildGrid(List<Child> children, {required int cols, required bool isTablet}) {
+    final rows = <Widget>[];
+    for (int i = 0; i < children.length; i += cols) {
+      final rowItems = children.sublist(i, (i + cols).clamp(0, children.length));
+      rows.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(cols, (j) {
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left:   j == 0        ? 0 : 8,
+                  right:  j == cols - 1 ? 0 : 8,
+                  bottom: 16,
+                ),
+                child: j < rowItems.length
+                    ? _ChildCard(child: rowItems[j], isTablet: isTablet)
+                    : const SizedBox(),
+              ),
+            );
+          }),
+        ),
+      );
+    }
+    return Column(children: rows);
   }
 
   Widget _buildHeaderCard(bool isTablet) {
@@ -238,258 +272,76 @@ class _MesEnfantsPageState extends State<MesEnfantsPage> {
       ),
     );
   }
-
-  Widget _buildChildrenGrid() {
-    final rows = <Widget>[];
-    for (int i = 0; i < _filtered.length; i += 2) {
-      final first  = _filtered[i];
-      final second = i + 1 < _filtered.length ? _filtered[i + 1] : null;
-      rows.add(
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: _ChildCardLandscape(child: first)),
-            const SizedBox(width: 16),
-            Expanded(
-              child: second != null
-                  ? _ChildCardLandscape(child: second)
-                  : const SizedBox(),
-            ),
-          ],
-        ),
-      );
-      rows.add(const SizedBox(height: 16));
-    }
-    return Column(children: rows);
-  }
-
-  Widget _buildChildrenList(bool isTablet) {
-    return Column(
-      children: _filtered
-          .map((child) => _ChildCardPortrait(child: child, isTablet: isTablet))
-          .toList(),
-    );
-  }
 }
 
-class _ChildCardLandscape extends StatelessWidget {
-  final Child child;
-  const _ChildCardLandscape({required this.child});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _kCyan, width: 1.5),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 3)),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Avatar
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(color: Colors.grey[300], shape: BoxShape.circle),
-            child: const Icon(Icons.person, color: Colors.white, size: 42),
-          ),
-          const SizedBox(height: 10),
-
-          // Nom
-          Text(
-            child.name,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          Text(
-            child.level,
-            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Chips pseudo + mot de passe
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _InfoChip(label: 'PSEUDO', value: child.pseudo, color: _kCyanLight),
-              const SizedBox(width: 8),
-              _InfoChip(label: 'Mot DE PASSE', value: child.password, color: _kCyan),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Boutons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      barrierColor: Colors.black45,
-                      builder: (_) => EditEnfantPage(
-                        nom: child.name,
-                        classe: child.level,
-                        identifiant: child.pseudo,
-                        motDePasse: child.password,
-                      ),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: _kCyan, width: 1.5),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                    backgroundColor: Colors.white,
-                  ),
-                  child: const Text('Modifier',
-                      style: TextStyle(color: _kCyan, fontSize: 14, fontWeight: FontWeight.w600)),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const EnfantExPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _kCyan,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                    elevation: 0,
-                  ),
-                  child: const Text('se connecter',
-                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color  color;
-  const _InfoChip({required this.label, required this.value, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.4)),
-      ),
-      child: Column(
-        children: [
-          Text(label,
-              style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.bold)),
-          Text(value,
-              style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChildCardPortrait extends StatelessWidget {
+class _ChildCard extends StatelessWidget {
   final Child child;
   final bool  isTablet;
-  const _ChildCardPortrait({required this.child, this.isTablet = false});
+  const _ChildCard({required this.child, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: isTablet ? 24 : 36),
+      margin: EdgeInsets.only(bottom: isTablet ? 16 : 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
         border: Border.all(color: _kCyan, width: 1.5),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 3)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(
-              isTablet ? 20 : 14,
-              isTablet ? 20 : 16,
-              isTablet ? 20 : 14,
-              isTablet ? 20 : 16,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            padding: EdgeInsets.all(isTablet ? 18 : 14),
+            child: Column(
               children: [
+                // Avatar centré
                 Container(
-                  width: isTablet ? 80 : 64,
-                  height: isTablet ? 80 : 64,
+                  width: isTablet ? 72 : 60,
+                  height: isTablet ? 72 : 60,
                   decoration: BoxDecoration(color: Colors.grey[300], shape: BoxShape.circle),
-                  child: Icon(Icons.person, color: Colors.white, size: isTablet ? 46 : 36),
+                  child: Icon(Icons.person, color: Colors.white, size: isTablet ? 42 : 34),
                 ),
-                SizedBox(width: isTablet ? 18 : 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(child.name,
-                          style: TextStyle(
-                            fontSize: isTablet ? 20 : 17,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          )),
-                      Text(child.level,
-                          style: TextStyle(fontSize: isTablet ? 14 : 12, color: Colors.grey[500])),
-                      SizedBox(height: isTablet ? 10 : 8),
-                      RichText(
-                        text: TextSpan(
-                          style: TextStyle(fontSize: isTablet ? 14 : 12.5),
-                          children: [
-                            TextSpan(
-                              text: 'PSEUDO : ',
-                              style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600),
-                            ),
-                            TextSpan(text: child.pseudo, style: const TextStyle(color: Colors.black87)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      RichText(
-                        text: TextSpan(
-                          style: TextStyle(fontSize: isTablet ? 14 : 12.5),
-                          children: [
-                            TextSpan(
-                              text: 'Mot DE PASSE : ',
-                              style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600),
-                            ),
-                            TextSpan(text: child.password, style: const TextStyle(color: Colors.black87)),
-                          ],
-                        ),
-                      ),
-                    ],
+                SizedBox(height: isTablet ? 10 : 8),
+
+                // Nom + niveau
+                Text(
+                  child.name,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: isTablet ? 18 : 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
                 ),
+                Text(
+                  child.level,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: isTablet ? 13 : 11, color: Colors.grey[500]),
+                ),
+
+                SizedBox(height: isTablet ? 12 : 10),
+
+                // Pseudo + mot de passe
+                _infoRow('PSEUDO', child.pseudo, isTablet),
+                SizedBox(height: isTablet ? 6 : 4),
+                _infoRow('MOT DE PASSE', child.password, isTablet),
               ],
             ),
           ),
+
           Padding(
             padding: EdgeInsets.fromLTRB(
-              isTablet ? 20 : 14, 0,
-              isTablet ? 20 : 14,
-              isTablet ? 20 : 14,
+              isTablet ? 18 : 14, 0,
+              isTablet ? 18 : 14,
+              isTablet ? 18 : 14,
             ),
             child: Row(
               children: [
@@ -510,36 +362,80 @@ class _ChildCardPortrait extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: _kCyan, width: 1.5),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      padding: EdgeInsets.symmetric(vertical: isTablet ? 14 : 11),
+                      padding: EdgeInsets.symmetric(vertical: isTablet ? 13 : 10),
                       backgroundColor: Colors.white,
                     ),
-                    child: Text('Modifier',
-                        style: TextStyle(color: _kCyan, fontSize: isTablet ? 16 : 14, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      'Modifier',
+                      style: TextStyle(
+                        color: _kCyan,
+                        fontSize: isTablet ? 14 : 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const EnfantExPage()),
+MaterialPageRoute(builder: (_) => EnfantExPage()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kCyan,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      padding: EdgeInsets.symmetric(vertical: isTablet ? 14 : 11),
+                      padding: EdgeInsets.symmetric(vertical: isTablet ? 13 : 10),
                       elevation: 0,
                     ),
-                    child: Text('se connecter',
-                        style: TextStyle(color: Colors.white, fontSize: isTablet ? 16 : 14, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      'Connecter',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isTablet ? 14 : 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, bool isTablet) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 10 : 8,
+        vertical:   isTablet ? 6  : 4,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE0F7FA),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: RichText(
+        text: TextSpan(
+          style: TextStyle(fontSize: isTablet ? 13 : 11.5),
+          children: [
+            TextSpan(
+              text: '$label : ',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            TextSpan(
+              text: value,
+              style: const TextStyle(color: Colors.black87),
+            ),
+          ],
+        ),
       ),
     );
   }

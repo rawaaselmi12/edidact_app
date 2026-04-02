@@ -47,37 +47,48 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  bool _isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return size.longestSide >= 900 || size.shortestSide >= 600;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isTablet = _isTablet(context);
+    final double hPad = isTablet ? 28 : 16;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Menu Icon
             Padding(
-              padding: const EdgeInsets.only(left: 16, top: 12, bottom: 4),
+              padding: EdgeInsets.only(left: hPad, top: 12, bottom: 4),
               child: GestureDetector(
                 onTap: _openMenu,
-                child: const Icon(Icons.menu, color: _kCyan, size: 34),
+                child: Icon(Icons.menu, color: _kCyan, size: isTablet ? 40 : 34),
               ),
             ),
-            // Header
+
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 26 : 20,
+                  vertical:   isTablet ? 24 : 20,
+                ),
                 decoration: BoxDecoration(
                   color: _kPurple,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(isTablet ? 22 : 18),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.person_outline_rounded, color: Colors.white, size: 32),
-                    SizedBox(width: 14),
+                  children: [
+                    Icon(Icons.person_outline_rounded,
+                        color: Colors.white, size: isTablet ? 44 : 32),
+                    SizedBox(width: isTablet ? 18 : 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,15 +97,17 @@ class _ProfilePageState extends State<ProfilePage> {
                             'Profil',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: isTablet ? 21 : 16,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: isTablet ? 10 : 8),
                           Text(
                             'Gérez vos informations personnelles et votre abonnement',
-                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: isTablet ? 16 : 13),
                           ),
                         ],
                       ),
@@ -103,23 +116,73 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 14),
-            // Tab Buttons
+
+            SizedBox(height: isTablet ? 20 : 16),
+
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Row(
                 children: [
-                  _TabBtn(label: 'Profil', active: _tabIndex == 0, onTap: () => setState(() => _tabIndex = 0)),
-                  const SizedBox(width: 8),
-                  _TabBtn(label: 'Sécurité', active: _tabIndex == 1, onTap: () => setState(() => _tabIndex = 1)),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _tabIndex = 0),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(
+                            vertical: isTablet ? 15 : 10),
+                        decoration: BoxDecoration(
+                          color: _tabIndex == 0 ? _kCyan : Colors.white,
+                          borderRadius:
+                              BorderRadius.circular(isTablet ? 14 : 10),
+                          border: Border.all(color: _kCyan, width: 1.5),
+                        ),
+                        child: Text(
+                          'Profil',
+                          style: TextStyle(
+                            color: _tabIndex == 0 ? Colors.white : _kCyan,
+                            fontWeight: FontWeight.w600,
+                            fontSize: isTablet ? 18 : 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: isTablet ? 12 : 8),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _tabIndex = 1),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(
+                            vertical: isTablet ? 15 : 10),
+                        decoration: BoxDecoration(
+                          color: _tabIndex == 1 ? _kCyan : Colors.white,
+                          borderRadius:
+                              BorderRadius.circular(isTablet ? 14 : 10),
+                          border: Border.all(color: _kCyan, width: 1.5),
+                        ),
+                        child: Text(
+                          'Sécurité',
+                          style: TextStyle(
+                            color: _tabIndex == 1 ? Colors.white : _kCyan,
+                            fontWeight: FontWeight.w600,
+                            fontSize: isTablet ? 18 : 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-            // Content
+
+            SizedBox(height: isTablet ? 20 : 14),
+
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 24),
                 child: _tabIndex == 0
                     ? _ProfilContent(
                         nomCtrl: _nomCtrl,
@@ -133,37 +196,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TabBtn extends StatelessWidget {
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-  const _TabBtn({required this.label, required this.active, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: active ? _kCyan : Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: active ? _kCyan : _kCyanLight, width: 1.5),
-          ),
-          child: Text(label,
-              style: TextStyle(
-                  color: active ? Colors.white : _kCyan,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15)),
         ),
       ),
     );
@@ -184,10 +216,9 @@ class _ProfilContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth > 800;
+        final width = constraints.maxWidth;
 
-        if (!isDesktop) {
-          // MOBILE
+        if (width < 600) {
           return Column(
             children: [
               _personalCard(),
@@ -197,18 +228,39 @@ class _ProfilContent extends StatelessWidget {
               _factureCard(),
             ],
           );
-        } else {
-          // DESKTOP : égaliser les tailles
+        }
+
+        if (width < 1000) {
           return Column(
             children: [
-              _EqualHeightRow(
-                children: [_personalCard(isDesktop: true), _abonnementCard()],
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _personalCard()),
+                    const SizedBox(width: 14),
+                    Expanded(child: _abonnementCard()),
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               _factureCard(),
             ],
           );
         }
+
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: _personalCard(isDesktop: true)),
+              const SizedBox(width: 14),
+              Expanded(child: _abonnementCard()),
+              const SizedBox(width: 14),
+              Expanded(child: _factureCard()),
+            ],
+          ),
+        );
       },
     );
   }
@@ -218,13 +270,14 @@ class _ProfilContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header + Button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Informations personnelles',
-                  style: TextStyle(
-                      color: _kCyan, fontWeight: FontWeight.bold, fontSize: 14)),
+              const Flexible(
+                child: Text('Informations personnelles',
+                    style: TextStyle(
+                        color: _kCyan, fontWeight: FontWeight.bold, fontSize: 14)),
+              ),
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
@@ -239,47 +292,17 @@ class _ProfilContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Champs en 2 lignes
-          isDesktop
-              ? Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(child: _Field(label: 'Nom complet', ctrl: nomCtrl, activeBorder: false)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _Field(label: 'Email', ctrl: emailCtrl, activeBorder: false)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _Field(label: 'Téléphone', ctrl: tlpCtrl, activeBorder: false)),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(child: _Field(label: 'Adresse', ctrl: adresseCtrl, activeBorder: false)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _Field(label: 'Code postal', ctrl: cpCtrl, activeBorder: false)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _Field(label: 'Ville', ctrl: villeCtrl, activeBorder: false)),
-                      ],
-                    ),
-                  ],
-                )
-              : Column(
-                  children: [
-                    _Field(label: 'Nom complet', ctrl: nomCtrl, activeBorder: false),
-                    const SizedBox(height: 10),
-                    _Field(label: 'Email', ctrl: emailCtrl, activeBorder: false),
-                    const SizedBox(height: 10),
-                    _Field(label: 'Téléphone', ctrl: tlpCtrl, activeBorder: false),
-                    const SizedBox(height: 10),
-                    _Field(label: 'Adresse', ctrl: adresseCtrl, activeBorder: false),
-                    const SizedBox(height: 10),
-                    _Field(label: 'Code postal', ctrl: cpCtrl, activeBorder: false),
-                    const SizedBox(height: 10),
-                    _Field(label: 'Ville', ctrl: villeCtrl, activeBorder: false),
-                    const SizedBox(height: 10),
-                  ],
-                ),
+          _Field(label: 'Nom complet', ctrl: nomCtrl, activeBorder: false),
+          const SizedBox(height: 10),
+          _Field(label: 'Email', ctrl: emailCtrl, activeBorder: false),
+          const SizedBox(height: 10),
+          _Field(label: 'Téléphone', ctrl: tlpCtrl, activeBorder: false),
+          const SizedBox(height: 10),
+          _Field(label: 'Adresse', ctrl: adresseCtrl, activeBorder: false),
+          const SizedBox(height: 10),
+          _Field(label: 'Code postal', ctrl: cpCtrl, activeBorder: false),
+          const SizedBox(height: 10),
+          _Field(label: 'Ville', ctrl: villeCtrl, activeBorder: false),
         ],
       ),
     );
@@ -293,14 +316,15 @@ class _ProfilContent extends StatelessWidget {
           Row(children: const [
             Icon(Icons.shield_outlined, color: _kCyan, size: 20),
             SizedBox(width: 8),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Abonnement',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: Colors.black87)),
-              Text('Informations sur votre abonnement actuel',
-                  style: TextStyle(fontSize: 11, color: Colors.grey)),
-            ]),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Abonnement',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: Colors.black87)),
+                Text('Informations sur votre abonnement actuel',
+                    style: TextStyle(fontSize: 11, color: Colors.grey)),
+              ]),
+            ),
           ]),
-
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
@@ -476,14 +500,13 @@ class _FRow extends StatelessWidget {
   }
 }
 
-//securite
 class _SecuriteContent extends StatelessWidget {
   const _SecuriteContent();
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isLandscape = constraints.maxWidth > 800;
+      final width = constraints.maxWidth;
 
       Widget leftBox = _Card(
         child: Column(
@@ -519,16 +542,17 @@ class _SecuriteContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: const [
-              Icon(Icons.description, color: _kCyan, size:20),
+              Icon(Icons.description, color: _kCyan, size: 20),
               SizedBox(width: 8),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Demande de résialtion',
-                style: TextStyle(fontWeight:FontWeight.bold,fontSize: 14.5,color:_kCyan)),
-                Text('Vous souhaitez résilier votre abonnement',
-                style: TextStyle(fontSize: 11, color: Colors.grey)),
-              ]),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Demande de résiliation',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: _kCyan)),
+                  Text('Vous souhaitez résilier votre abonnement',
+                      style: TextStyle(fontSize: 11, color: Colors.grey)),
+                ]),
+              ),
             ]),
-
             const SizedBox(height: 10),
             Container(
               width: double.infinity,
@@ -560,11 +584,14 @@ class _SecuriteContent extends StatelessWidget {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('1/ Indiquez la raison de votre demande', style: TextStyle(fontSize: 12, color: Colors.black87)),
+                  Text('1/ Indiquez la raison de votre demande',
+                      style: TextStyle(fontSize: 12, color: Colors.black87)),
                   SizedBox(height: 4),
-                  Text('2/ Notre équipe examine votre demande', style: TextStyle(fontSize: 12, color: Colors.black87)),
+                  Text('2/ Notre équipe examine votre demande',
+                      style: TextStyle(fontSize: 12, color: Colors.black87)),
                   SizedBox(height: 4),
-                  Text('3/ Nous vous contactons sous 48h', style: TextStyle(fontSize: 12, color: Colors.black87)),
+                  Text('3/ Nous vous contactons sous 48h',
+                      style: TextStyle(fontSize: 12, color: Colors.black87)),
                 ],
               ),
             ),
@@ -580,7 +607,7 @@ class _SecuriteContent extends StatelessWidget {
         ),
       );
 
-      if (!isLandscape) {
+      if (width < 600) {
         return Column(
           children: [
             leftBox,
@@ -588,21 +615,22 @@ class _SecuriteContent extends StatelessWidget {
             rightBox,
           ],
         );
-      } else {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      }
+
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(child: leftBox),
             const SizedBox(width: 16),
             Expanded(child: rightBox),
           ],
-        );
-      }
+        ),
+      );
     });
   }
 }
 
-// ================= CARD WIDGET =================
 class _Card extends StatelessWidget {
   final Widget child;
   const _Card({required this.child});
@@ -620,26 +648,6 @@ class _Card extends StatelessWidget {
         ],
       ),
       child: child,
-    );
-  }
-}
-
-// ================= EQUAL HEIGHT ROW =================
-class _EqualHeightRow extends StatelessWidget {
-  final List<Widget> children;
-  const _EqualHeightRow({required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children
-            .map((w) => Expanded(
-                  child: Padding(padding: const EdgeInsets.only(right: 12), child: w),
-                ))
-            .toList(),
-      ),
     );
   }
 }
