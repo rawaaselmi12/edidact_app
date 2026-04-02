@@ -525,6 +525,7 @@ class _SecuriteContent extends StatelessWidget {
             const SizedBox(height: 10),
             _Field(label: 'Confirmer le mot de passe', ctrl: TextEditingController(), activeBorder: true),
             const SizedBox(height: 12),
+            const Spacer(),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -596,6 +597,9 @@ class _SecuriteContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
+            const Spacer(),
+            const Spacer(),
+            const Spacer(),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

@@ -107,6 +107,7 @@ class MenuBarre extends StatelessWidget {
                   ),
 
                   SizedBox(height: logoSpacing),
+                  
 
                   _item(
                     icon:         Icons.bar_chart_rounded,

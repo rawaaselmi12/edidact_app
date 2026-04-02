@@ -85,7 +85,6 @@ class MenuBarreEnfant extends StatelessWidget {
                   ),
 
                   SizedBox(height: menuSpacing),
-
                   _menuItem(
                     context: context,
                     icon: Icons.menu_book_rounded,
@@ -112,6 +111,7 @@ MaterialPageRoute(builder: (_) => EnfantExPage()),
                     hPad: itemHPad,
                     onTap: () => Navigator.pop(context),
                   ),
+                  
                   _menuItem(
                     context: context,
                     icon: Icons.bar_chart_rounded,
@@ -145,8 +145,8 @@ MaterialPageRoute(builder: (_) => EnfantExPage()),
                     },
                   ),
 
-                  const Spacer(),
-
+const Spacer(),
+const Spacer(),
                   _menuItem(
                     context: context,
                     icon: Icons.logout,
