@@ -28,7 +28,7 @@ const List<Subject> _subjects = [
     description: 'Apprenez la langue anglaise avec des méthodes modernes',
     progress: 0.0,
     color: _kYellowLight,
-     ),
+  ),
   Subject(
     name: 'Maths',
     description: 'Découvrez cette matière passionnante avec nos exercices adaptés',
@@ -69,7 +69,6 @@ class EnfantExPage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-   
     final int cols = isLandscape ? 3 : (screenWidth >= 600 ? 2 : 1);
     final bool isTablet = screenWidth >= 600;
 
@@ -104,7 +103,10 @@ class EnfantExPage extends StatelessWidget {
                 child: Icon(Icons.menu, size: isTablet ? 40 : 34, color: _kCyan),
               ),
 
-              SizedBox(height: isTablet ? 24 : 16),              Container(
+              SizedBox(height: isTablet ? 24 : 16),
+
+              // ── Header violet ──
+              Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
                   horizontal: isTablet ? 28 : 20,
@@ -115,43 +117,45 @@ class EnfantExPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
-  children: [
-    Container(
-      width: avatarSize,
-      height: avatarSize,
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(Icons.person, color: Colors.white, size: avatarIconSize),
-    ),
-    SizedBox(width: isTablet ? 20 : 16),
-    Expanded( // <- ajouter Expanded ici
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Bonjour Enfant',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: titleFontSize,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Choisis une matière pour commencer',
-            style: TextStyle(color: Colors.white70, fontSize: subtitleFontSize),
-            overflow: TextOverflow.ellipsis, // coupe le texte si trop long
-          ),
-        ],
-      ),
-    ),
-  ],
-),
+                  children: [
+                    Container(
+                      width: avatarSize,
+                      height: avatarSize,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.person, color: Colors.white, size: avatarIconSize),
+                    ),
+                    SizedBox(width: isTablet ? 20 : 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Bonjour Enfant',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Choisis une matière pour commencer',
+                            style: TextStyle(color: Colors.white70, fontSize: subtitleFontSize),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-             SizedBox(height: isTablet ? 24 : 16),
 
+              SizedBox(height: isTablet ? 24 : 16),
+
+              // ── Barre fil d'Ariane : uniquement "Table des matières" ──
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
@@ -165,11 +169,15 @@ class EnfantExPage extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.menu_book_rounded, color: Colors.red[400], size: tableMenuIconSize),
+                    Icon(Icons.menu_book_rounded,
+                        color: Colors.red[400], size: tableMenuIconSize),
                     const SizedBox(width: 8),
                     Text(
                       'Table des matières',
-                      style: TextStyle(fontSize: tableMenuFontSize, color: Colors.black87),
+                      style: TextStyle(
+                        fontSize: tableMenuFontSize,
+                        color: Colors.black87,
+                      ),
                     ),
                   ],
                 ),
@@ -177,7 +185,6 @@ class EnfantExPage extends StatelessWidget {
 
               SizedBox(height: isTablet ? 24 : 16),
 
-             
               cols == 1
                   ? Column(
                       children: _subjects
@@ -253,10 +260,7 @@ class _SubjectCard extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.only(bottom: cardMarginBot),
         padding: EdgeInsets.fromLTRB(
-          cardPaddingH,
-          cardPaddingV,
-          cardPaddingH,
-          cardPaddingV,
+          cardPaddingH, cardPaddingV, cardPaddingH, cardPaddingV,
         ),
         decoration: BoxDecoration(
           color: subject.color,
@@ -266,7 +270,6 @@ class _SubjectCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Nom
             Text(
               subject.name,
               style: TextStyle(
@@ -275,37 +278,24 @@ class _SubjectCard extends StatelessWidget {
                 color: Colors.black87,
               ),
             ),
-
             SizedBox(height: isTablet ? 6 : 6),
-
-            // Description
             Text(
               subject.description,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: descFontSize, color: Colors.grey[600]),
             ),
-
             SizedBox(height: isTablet ? 12 : 8),
-
-            // Progression + %
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Progression',
-                  style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '$percent%',
-                  style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600),
-                ),
+                Text('Progression',
+                    style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600)),
+                Text('$percent%',
+                    style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600)),
               ],
             ),
-
             SizedBox(height: isTablet ? 10 : 9),
-
-            // Barre
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(

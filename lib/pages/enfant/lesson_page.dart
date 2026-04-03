@@ -45,14 +45,24 @@ const List<Exercise> _exercises = [
 class LessonPage extends StatelessWidget {
   final String titre;
   final String description;
+  // ── paramètres breadcrumb hérités ──
+  final String matiereNom;
+  final String sousMatiereNom;
 
   const LessonPage({
     super.key,
     required this.titre,
     required this.description,
+    required this.matiereNom,
+    required this.sousMatiereNom,
   });
 
-  Widget _buildGrid(List<Exercise> items, {required int cols, required bool isTablet}) {
+  Widget _buildGrid(
+    List<Exercise> items, {
+    required int cols,
+    required bool isTablet,
+    required BuildContext context,
+  }) {
     final rows = <Widget>[];
     for (int i = 0; i < items.length; i += cols) {
       final rowItems = items.sublist(i, (i + cols).clamp(0, items.length));
@@ -68,7 +78,13 @@ class LessonPage extends StatelessWidget {
                   bottom: 16,
                 ),
                 child: j < rowItems.length
-                    ? _ExerciseCard(exercise: rowItems[j], isTablet: isTablet)
+                    ? _ExerciseCard(
+                        exercise: rowItems[j],
+                        isTablet: isTablet,
+                        matiereNom: matiereNom,
+                        sousMatiereNom: sousMatiereNom,
+                        lessonNom: titre,
+                      )
                     : const SizedBox(),
               ),
             );
@@ -85,10 +101,10 @@ class LessonPage extends StatelessWidget {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet    = screenWidth >= 600;
 
-    // Mobile portrait  → 1 col
-    // Tablette portrait → 2 cols
-    // Paysage (tous)   → 3 cols
     final int cols = isLandscape ? 3 : (isTablet ? 2 : 1);
+
+    final double tableMenuFontSize = isTablet ? 15 : 13;
+    final double tableMenuIconSize = isTablet ? 22 : 18;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
@@ -117,6 +133,7 @@ class LessonPage extends StatelessWidget {
 
               SizedBox(height: isTablet ? 24 : 16),
 
+              // ── Breadcrumb: "Table des matières › matiereNom › sousMatiereNom › titre" ──
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
@@ -131,18 +148,87 @@ class LessonPage extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(Icons.menu_book_rounded,
-                        color: Colors.red[400],
-                        size: isTablet ? 22 : 18),
-                    const SizedBox(width: 10),
+                        color: Colors.red[400], size: tableMenuIconSize),
+                    const SizedBox(width: 8),
+
+                    // "Table des matières" → première page
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).popUntil((route) => route.isFirst);
+                      },
+                      child: Text(
+                        'Table des matières',
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: _kCyan,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Icon(Icons.chevron_right,
+                          size: tableMenuIconSize, color: Colors.grey[500]),
+                    ),
+
+                    // matiereNom → pop 2 fois (LessonPage → ContenuSousMatiere → SousMatiere)
+                    GestureDetector(
+                      onTap: () {
+                        // pop LessonPage + ContenuSousMatierePage → arrive à SousMatierePage
+                        Navigator.of(context)
+                          ..pop()
+                          ..pop();
+                      },
+                      child: Text(
+                        matiereNom,
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: _kCyan,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Icon(Icons.chevron_right,
+                          size: tableMenuIconSize, color: Colors.grey[500]),
+                    ),
+
+                    // sousMatiereNom → pop 1 fois → ContenuSousMatierePage
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        sousMatiereNom,
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: _kCyan,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Icon(Icons.chevron_right,
+                          size: tableMenuIconSize, color: Colors.grey[500]),
+                    ),
+
+                    // titre (page courante, non cliquable)
                     Expanded(
                       child: Text(
                         titre,
-                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: isTablet ? 18 : 16,
+                          fontSize: tableMenuFontSize,
+                          color: Colors.black87,
                           fontWeight: FontWeight.w600,
-                          color: _kCyan,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -154,10 +240,21 @@ class LessonPage extends StatelessWidget {
               cols == 1
                   ? Column(
                       children: _exercises
-                          .map((e) => _ExerciseCard(exercise: e, isTablet: false))
+                          .map((e) => _ExerciseCard(
+                                exercise: e,
+                                isTablet: false,
+                                matiereNom: matiereNom,
+                                sousMatiereNom: sousMatiereNom,
+                                lessonNom: titre,
+                              ))
                           .toList(),
                     )
-                  : _buildGrid(_exercises, cols: cols, isTablet: isTablet),
+                  : _buildGrid(
+                      _exercises,
+                      cols: cols,
+                      isTablet: isTablet,
+                      context: context,
+                    ),
             ],
           ),
         ),
@@ -169,9 +266,15 @@ class LessonPage extends StatelessWidget {
 class _ExerciseCard extends StatelessWidget {
   final Exercise exercise;
   final bool     isTablet;
+  final String   matiereNom;
+  final String   sousMatiereNom;
+  final String   lessonNom;
 
   const _ExerciseCard({
     required this.exercise,
+    required this.matiereNom,
+    required this.sousMatiereNom,
+    required this.lessonNom,
     this.isTablet = false,
   });
 
@@ -193,7 +296,13 @@ class _ExerciseCard extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ExercicePage(exerciceNom: exercise.name),
+          builder: (_) => ExercicePage(
+            exerciceNom: exercise.name,
+            // ── nouveaux paramètres pour la breadcrumb ──
+            matiereNom: matiereNom,
+            sousMatiereNom: sousMatiereNom,
+            lessonNom: lessonNom,
+          ),
         ),
       ),
       child: Container(

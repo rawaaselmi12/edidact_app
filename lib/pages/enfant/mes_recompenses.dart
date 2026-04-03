@@ -31,8 +31,6 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
     final bool isTablet = screenWidth >= _kTabletBreakpoint;
     final double hPad = isTablet ? (isLandscape ? 40.0 : 20.0) : 16.0;
 
-   
-    
     final int cols = isLandscape ? 3 : (screenWidth >= _kTabletBreakpoint ? 2 : 1);
 
     return SingleChildScrollView(
@@ -53,7 +51,7 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
           ),
           const SizedBox(height: 14),
 
-          _buildHeaderCard(),
+          _buildHeaderCard(isTablet: isTablet),
           const SizedBox(height: 14),
 
           Row(
@@ -96,27 +94,35 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
     );
   }
 
-  Widget _buildHeaderCard() {
+  // ── Header aligné sur enfant_ex ──
+  Widget _buildHeaderCard({required bool isTablet}) {
+    final double avatarSize     = isTablet ? 70 : 56;
+    final double avatarIconSize = isTablet ? 38 : 32;
+    final double hPad           = isTablet ? 28 : 20;
+    final double vPad           = isTablet ? 26 : 20;
+    final double titleFontSize  = isTablet ? 24 : 20;
+    final double subtitleSize   = isTablet ? 15 : 13;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
       decoration: BoxDecoration(
         color: _kPurple,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: avatarSize,
+            height: avatarSize,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.emoji_events_rounded, color: Colors.white, size: 28),
+            child: Icon(Icons.emoji_events_rounded, color: Colors.white, size: avatarIconSize),
           ),
-          const SizedBox(width: 14),
-          const Expanded(
+          SizedBox(width: isTablet ? 20 : 16),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -124,14 +130,16 @@ class _MesRecompensePageState extends State<MesRecompensePage> {
                   'Mes Récompenses',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Découvre toutes les récompenses et utilise tes coins pour en obtenir de nouvelles !',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(color: Colors.white70, fontSize: subtitleSize),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
               ],
             ),

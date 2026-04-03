@@ -44,13 +44,20 @@ const List<Lesson> _lessons = [
 
 class ContenuSousMatierePage extends StatelessWidget {
   final String sousMatiereNom;
+  final String matiereNom;
 
   const ContenuSousMatierePage({
     super.key,
     required this.sousMatiereNom,
+    required this.matiereNom,
   });
 
-  Widget _buildGrid(List<Lesson> items, {required int cols, required bool isTablet}) {
+  Widget _buildGrid(
+    List<Lesson> items, {
+    required int cols,
+    required bool isTablet,
+    required BuildContext context,
+  }) {
     final rows = <Widget>[];
     for (int i = 0; i < items.length; i += cols) {
       final rowItems = items.sublist(i, (i + cols).clamp(0, items.length));
@@ -66,7 +73,12 @@ class ContenuSousMatierePage extends StatelessWidget {
                   bottom: 16,
                 ),
                 child: j < rowItems.length
-                    ? _LessonCard(lesson: rowItems[j], isTablet: isTablet)
+                    ? _LessonCard(
+                        lesson: rowItems[j],
+                        isTablet: isTablet,
+                        sousMatiereNom: sousMatiereNom,
+                        matiereNom: matiereNom,
+                      )
                     : const SizedBox(),
               ),
             );
@@ -83,10 +95,10 @@ class ContenuSousMatierePage extends StatelessWidget {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet    = screenWidth >= 600;
 
-    
     final int cols = isLandscape ? 3 : (isTablet ? 2 : 1);
 
-    final double tableMenuFontSize = isTablet ? 18 : 16;
+    final double tableMenuFontSize = isTablet ? 15 : 13;
+    final double tableMenuIconSize = isTablet ? 22 : 18;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
@@ -115,6 +127,7 @@ class ContenuSousMatierePage extends StatelessWidget {
 
               SizedBox(height: isTablet ? 24 : 16),
 
+              // ── Breadcrumb: "Table des matières › matiereNom › sousMatiereNom" ──
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
@@ -129,15 +142,62 @@ class ContenuSousMatierePage extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(Icons.menu_book_rounded,
-                        color: Colors.red[400],
-                        size: isTablet ? 22 : 18),
-                    const SizedBox(width: 10),
-                    Text(
-                      sousMatiereNom,
-                      style: TextStyle(
-                        fontSize: tableMenuFontSize,
-                        fontWeight: FontWeight.w600,
-                        color: _kCyan,
+                        color: Colors.red[400], size: tableMenuIconSize),
+                    const SizedBox(width: 8),
+
+                    // "Table des matières" → retour à la première page
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).popUntil((route) => route.isFirst);
+                      },
+                      child: Text(
+                        'Table des matières',
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: _kCyan,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Icon(Icons.chevron_right,
+                          size: tableMenuIconSize, color: Colors.grey[500]),
+                    ),
+
+                    // Nom de la matière → retour à SousMatierePage
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        matiereNom,
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: _kCyan,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Icon(Icons.chevron_right,
+                          size: tableMenuIconSize, color: Colors.grey[500]),
+                    ),
+
+                    // Nom sous-matière (page courante, non cliquable)
+                    Expanded(
+                      child: Text(
+                        sousMatiereNom,
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -149,10 +209,20 @@ class ContenuSousMatierePage extends StatelessWidget {
               cols == 1
                   ? Column(
                       children: _lessons
-                          .map((l) => _LessonCard(lesson: l, isTablet: false))
+                          .map((l) => _LessonCard(
+                                lesson: l,
+                                isTablet: false,
+                                sousMatiereNom: sousMatiereNom,
+                                matiereNom: matiereNom,
+                              ))
                           .toList(),
                     )
-                  : _buildGrid(_lessons, cols: cols, isTablet: isTablet),
+                  : _buildGrid(
+                      _lessons,
+                      cols: cols,
+                      isTablet: isTablet,
+                      context: context,
+                    ),
             ],
           ),
         ),
@@ -164,9 +234,13 @@ class ContenuSousMatierePage extends StatelessWidget {
 class _LessonCard extends StatelessWidget {
   final Lesson lesson;
   final bool   isTablet;
+  final String sousMatiereNom;
+  final String matiereNom;
 
   const _LessonCard({
     required this.lesson,
+    required this.sousMatiereNom,
+    required this.matiereNom,
     this.isTablet = false,
   });
 
@@ -191,6 +265,9 @@ class _LessonCard extends StatelessWidget {
           builder: (_) => LessonPage(
             titre: lesson.name,
             description: lesson.description,
+            // ── nouveaux paramètres pour la breadcrumb ──
+            matiereNom: matiereNom,
+            sousMatiereNom: sousMatiereNom,
           ),
         ),
       ),
@@ -227,16 +304,10 @@ class _LessonCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Progression:',
-                  style: TextStyle(
-                      fontSize: labelFontSize, fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '$percent%',
-                  style: TextStyle(
-                      fontSize: labelFontSize, fontWeight: FontWeight.w600),
-                ),
+                Text('Progression:',
+                    style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600)),
+                Text('$percent%',
+                    style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600)),
               ],
             ),
             SizedBox(height: isTablet ? 8 : 5),

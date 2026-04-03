@@ -89,7 +89,6 @@ class _HistoriquePageState extends State<HistoriquePage> {
 
     final size        = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
-    final bool isTabletLandscape = isTablet && isLandscape;
 
     final double scale = (isTablet && isLandscape)
         ? 1.5
@@ -98,10 +97,10 @@ class _HistoriquePageState extends State<HistoriquePage> {
             : 1.0;
 
     final double cardScale = (isTablet && isLandscape)
-        ? 1.05   // était 1.5
+        ? 1.05
         : (isTablet && !isLandscape)
-            ? 1.0   
-            : 0.82; 
+            ? 1.0
+            : 0.82;
 
     double s(double value) => value * scale;
     double c(double value) => value * cardScale;
@@ -121,17 +120,22 @@ class _HistoriquePageState extends State<HistoriquePage> {
               ),
               SizedBox(height: s(16)),
 
+              // ── HEADER violet ──
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: s(20), vertical: s(20)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 26 : 20,
+                  vertical:   isTablet ? 24 : 20,
+                ),
                 decoration: BoxDecoration(
                   color: _kPurple,
-                  borderRadius: BorderRadius.circular(s(18)),
+                  borderRadius: BorderRadius.circular(isTablet ? 22 : 18),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('🏆', style: TextStyle(fontSize: s(32))),
-                    SizedBox(width: s(14)),
+                    Text('🏆', style: TextStyle(fontSize: isTablet ? 44 : 32)),
+                    SizedBox(width: isTablet ? 18 : 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,14 +144,17 @@ class _HistoriquePageState extends State<HistoriquePage> {
                             'Historique',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: s(16),
+                              fontSize: isTablet ? 21 : 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: s(8)),
+                          SizedBox(height: isTablet ? 10 : 8),
                           Text(
                             'Suivez l\'évolution et les récompenses obtenues par vos enfants',
-                            style: TextStyle(color: Colors.white70, fontSize: s(13)),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: isTablet ? 16 : 13,
+                            ),
                           ),
                         ],
                       ),
@@ -158,6 +165,7 @@ class _HistoriquePageState extends State<HistoriquePage> {
 
               SizedBox(height: s(16)),
 
+              // ── Sélecteur enfants ──
               Row(
                 children: List.generate(_enfants.length, (index) {
                   final isSelected = _selectedIndex == index;
@@ -193,81 +201,77 @@ class _HistoriquePageState extends State<HistoriquePage> {
 
               SizedBox(height: s(22)),
 
-              Center(
-                child: Container(
-                  width: double.infinity,
-                  constraints: BoxConstraints(
-                    maxWidth: isTabletLandscape ? size.width * 0.65 : double.infinity,
-                  ),
-                  padding: EdgeInsets.all(c(20)),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: _kCyanLight, width: 1.5),
-                    borderRadius: BorderRadius.circular(c(18)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Avatar + nom + badges
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: c(26),
-                            backgroundColor: Colors.grey.shade300,
-                            child: Icon(Icons.person,
-                                color: Colors.grey.shade500,
-                                size: c(28)),
-                          ),
-                          SizedBox(width: c(12)),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  enfant.nom,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: c(15),
-                                  ),
+              // ── Boîte bleue : même largeur que le header (width: double.infinity) ──
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(c(20)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: _kCyanLight, width: 1.5),
+                  borderRadius: BorderRadius.circular(c(18)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Avatar + nom + badges
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: c(26),
+                          backgroundColor: Colors.grey.shade300,
+                          child: Icon(Icons.person,
+                              color: Colors.grey.shade500,
+                              size: c(28)),
+                        ),
+                        SizedBox(width: c(12)),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                enfant.nom,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: c(15),
                                 ),
-                                SizedBox(height: c(5)),
-                                Wrap(
-                                  spacing: c(5),
-                                  runSpacing: c(3),
-                                  children: [
-                                    _Badge(label: '${enfant.niveau} 🪙',
-                                        bg: Colors.orange.shade100,
-                                        fg: Colors.orange.shade800,
-                                        scale: cardScale),
-                                    _Badge(label: '${enfant.activites} activité',
-                                        bg: _kCyan.withOpacity(0.15),
-                                        fg: _kCyan,
-                                        scale: cardScale),
-                                    _Badge(label: '${enfant.recompenses} Récompense',
-                                        bg: _kPurple.withOpacity(0.12),
-                                        fg: _kPurple,
-                                        scale: cardScale),
-                                  ],
-                                ),
-                              ],
-                            ),
+                              ),
+                              SizedBox(height: c(5)),
+                              Wrap(
+                                spacing: c(5),
+                                runSpacing: c(3),
+                                children: [
+                                  _Badge(label: '${enfant.niveau} 🪙',
+                                      bg: Colors.orange.shade100,
+                                      fg: Colors.orange.shade800,
+                                      scale: cardScale),
+                                  _Badge(label: '${enfant.activites} activité',
+                                      bg: _kCyan.withOpacity(0.15),
+                                      fg: _kCyan,
+                                      scale: cardScale),
+                                  _Badge(label: '${enfant.recompenses} Récompense',
+                                      bg: _kPurple.withOpacity(0.12),
+                                      fg: _kPurple,
+                                      scale: cardScale),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
 
-                      SizedBox(height: c(14)),
-                      Divider(color: _kCyanLight, thickness: 1.2),
-                      SizedBox(height: c(14)),
+                    SizedBox(height: c(14)),
+                    Divider(color: _kCyanLight, thickness: 1.2),
+                    SizedBox(height: c(14)),
 
-                      enfant.historique.isEmpty
-                          ? _EmptyState(scale: cardScale)
-                          : Column(
-                              children: enfant.historique
-                                  .map((item) => _HistoriqueRow(item: item, scale: cardScale))
-                                  .toList(),
-                            ),
-                    ],
-                  ),
+                    enfant.historique.isEmpty
+                        ? _EmptyState(scale: cardScale)
+                        : Column(
+                            children: enfant.historique
+                                .map((item) => _HistoriqueRow(item: item, scale: cardScale))
+                                .toList(),
+                          ),
+                  ],
                 ),
               ),
 

@@ -58,6 +58,7 @@ class SousMatierePage extends StatelessWidget {
     List<SousMatiere> items, {
     required int cols,
     required bool isTablet,
+    required String matiereNom,
   }) {
     final rows = <Widget>[];
     for (int i = 0; i < items.length; i += cols) {
@@ -77,6 +78,7 @@ class SousMatierePage extends StatelessWidget {
                     ? _SousMatiereCard(
                         sousMatiere: rowItems[j],
                         isTablet: isTablet,
+                        matiereNom: matiereNom,
                       )
                     : const SizedBox(),
               ),
@@ -94,7 +96,6 @@ class SousMatierePage extends StatelessWidget {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet    = screenWidth >= 600;
 
-   
     final int cols = isLandscape ? 3 : (isTablet ? 2 : 1);
 
     final double tableMenuFontSize = isTablet ? 15 : 13;
@@ -127,6 +128,7 @@ class SousMatierePage extends StatelessWidget {
 
               SizedBox(height: isTablet ? 24 : 16),
 
+              // ── Barre fil d'Ariane : "Table des matières  ›  matiereNom" ──
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
@@ -143,12 +145,38 @@ class SousMatierePage extends StatelessWidget {
                     Icon(Icons.menu_book_rounded,
                         color: Colors.red[400], size: tableMenuIconSize),
                     const SizedBox(width: 8),
-                    Text(
-                      matiereNom,
-                      style: TextStyle(
-                        fontSize: tableMenuFontSize,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
+                    // "Table des matières" cliquable → retour à EnfantExPage
+                    GestureDetector(
+                      onTap: () {
+                        // On dépile jusqu'à la page EnfantExPage
+                        Navigator.of(context).popUntil((route) {
+                          return route.settings.name == '/' || route.isFirst;
+                        });
+                      },
+                      child: Text(
+                        'Table des matières',
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: _kCyan,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Icon(Icons.chevron_right,
+                          size: tableMenuIconSize, color: Colors.grey[500]),
+                    ),
+                    // Nom de la matière (non cliquable, page courante)
+                    Expanded(
+                      child: Text(
+                        matiereNom,
+                        style: TextStyle(
+                          fontSize: tableMenuFontSize,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -163,10 +191,12 @@ class SousMatierePage extends StatelessWidget {
                           .map((sm) => _SousMatiereCard(
                                 sousMatiere: sm,
                                 isTablet: false,
+                                matiereNom: matiereNom,
                               ))
                           .toList(),
                     )
-                  : _buildGrid(_sousMatieres, cols: cols, isTablet: isTablet),
+                  : _buildGrid(_sousMatieres,
+                      cols: cols, isTablet: isTablet, matiereNom: matiereNom),
             ],
           ),
         ),
@@ -178,9 +208,11 @@ class SousMatierePage extends StatelessWidget {
 class _SousMatiereCard extends StatelessWidget {
   final SousMatiere sousMatiere;
   final bool isTablet;
+  final String matiereNom;
 
   const _SousMatiereCard({
     required this.sousMatiere,
+    required this.matiereNom,
     this.isTablet = false,
   });
 
@@ -204,6 +236,7 @@ class _SousMatiereCard extends StatelessWidget {
         MaterialPageRoute(
           builder: (_) => ContenuSousMatierePage(
             sousMatiereNom: sousMatiere.name,
+            matiereNom: matiereNom,
           ),
         ),
       ),
@@ -246,16 +279,10 @@ class _SousMatiereCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Progression',
-                  style: TextStyle(
-                      fontSize: labelFontSize, fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '$percent%',
-                  style: TextStyle(
-                      fontSize: labelFontSize, fontWeight: FontWeight.w600),
-                ),
+                Text('Progression',
+                    style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600)),
+                Text('$percent%',
+                    style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600)),
               ],
             ),
             SizedBox(height: isTablet ? 10 : 9),

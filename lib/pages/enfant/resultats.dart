@@ -52,11 +52,9 @@ class _ResultatsPageState extends State<ResultatsPage> {
     );
   }
 
-//portrat
   Widget _buildPortraitLayout(BuildContext context, {required bool isTablet}) {
     final double titleSize  = isTablet ? 20 : 17;
     final double bodySize   = isTablet ? 15 : 13;
-    final double avatarR    = isTablet ? 34 : 30;
     final double hPad       = isTablet ? 20 : 16;
     final double cardRadius = isTablet ? 16 : 14;
     final double spacing    = isTablet ? 22 : 18;
@@ -74,7 +72,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
           ),
           SizedBox(height: spacing),
 
-          _headerCard(avatarRadius: avatarR, cardRadius: cardRadius, bodySize: bodySize),
+          _headerCard(isTablet: isTablet, bodySize: bodySize),
           SizedBox(height: spacing),
 
           Text(
@@ -92,7 +90,6 @@ class _ResultatsPageState extends State<ResultatsPage> {
           ),
           SizedBox(height: isTablet ? 14 : 12),
 
-          // ── Grille : mobile = 1 col, tablette portrait = 2 cols ──
           isTablet
               ? _buildSubjectsGrid2Col(subjects)
               : Column(
@@ -118,8 +115,11 @@ class _ResultatsPageState extends State<ResultatsPage> {
             child: const Icon(Icons.menu, size: 36, color: _kCyan),
           ),
           const SizedBox(height: 14),
-          _headerCard(avatarRadius: 34, cardRadius: 18, bodySize: 15),
+
+          // Header paysage : on passe isTablet: true (paysage tablette)
+          _headerCard(isTablet: true, bodySize: 15),
           const SizedBox(height: 18),
+
           const Text(
             'Mes résultats totaux',
             style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.black87),
@@ -144,6 +144,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
             ),
           ),
           const SizedBox(height: 18),
+
           const Text(
             'Détails par matière',
             style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.black87),
@@ -204,7 +205,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0).copyWith(bottom: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 6).copyWith(bottom: 14),
                 child: b != null ? _subjectCard(b, isTablet: true) : const SizedBox(),
               ),
             ),
@@ -230,36 +231,51 @@ class _ResultatsPageState extends State<ResultatsPage> {
         ),
       );
 
-  Widget _headerCard({
-    required double avatarRadius,
-    required double cardRadius,
-    required double bodySize,
-  }) {
+  // ── Header aligné sur enfant_ex ──
+  Widget _headerCard({required bool isTablet, required double bodySize}) {
+    final double avatarSize     = isTablet ? 70 : 56;
+    final double avatarIconSize = isTablet ? 38 : 32;
+    final double hPad           = isTablet ? 28 : 20;
+    final double vPad           = isTablet ? 26 : 20;
+    final double titleFontSize  = isTablet ? 24 : 20;
+    final double subtitleSize   = isTablet ? 15 : 13;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(color: _kPurple, borderRadius: BorderRadius.circular(cardRadius)),
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
+      decoration: BoxDecoration(
+        color: _kPurple,
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircleAvatar(
-            radius: avatarRadius,
-            backgroundColor: Colors.white.withOpacity(0.3),
-            child: Icon(Icons.person, color: Colors.white, size: avatarRadius),
+          Container(
+            width: avatarSize,
+            height: avatarSize,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.person, color: Colors.white, size: avatarIconSize),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: isTablet ? 20 : 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Bonjour ${_child['name']}',
-                  style: TextStyle(color: Colors.white, fontSize: bodySize + 4, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: titleFontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   'Vérifiez votre progression',
-                  style: TextStyle(color: Colors.white70, fontSize: bodySize - 1),
+                  style: TextStyle(color: Colors.white70, fontSize: subtitleSize),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
